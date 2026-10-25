@@ -13,6 +13,10 @@ Google Antigravity:
 They come with the guide *Better with every talk*, about giving talks and workshops
 people remember and act on.
 
+The method behind both, its rules, checklists and evidence, lives in
+[`references/`](references/README.md): the talk brief, story, image slides, concision,
+accessibility, delivery and Q&A, and the rehearsal rubric.
+
 ## Install
 
 ### Claude Code
