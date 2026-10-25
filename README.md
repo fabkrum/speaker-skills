@@ -1,6 +1,6 @@
 # speaker-skills
 
-**Under construction.** Nothing here is ready to install yet.
+**Under construction.** The plugin installs, but it holds only a placeholder skill so far.
 
 Agent skills for speakers who want to get better with every talk, for Claude Code and
 Google Antigravity:
@@ -12,6 +12,64 @@ Google Antigravity:
 
 They come with the guide *Better with every talk*, about giving talks and workshops
 people remember and act on.
+
+## Install
+
+### Claude Code
+
+In Claude Code, run:
+
+```
+/plugin install speaker-skills --marketplace fabkrum/speaker-skills
+```
+
+On Claude Code older than 2.1.275, add the marketplace first, then install:
+
+```
+/plugin marketplace add fabkrum/speaker-skills
+/plugin install speaker-skills@speaker-skills
+```
+
+Run `/plugin` and the `placeholder` skill shows under `speaker-skills`.
+
+### Google Antigravity
+
+Antigravity reads the same skill folders. Each skill is one folder under `skills/`
+with a `SKILL.md` inside:
+
+```
+skills/
+  placeholder/
+    SKILL.md
+```
+
+Copy the folders you want from `skills/` into one of Antigravity's skills folders:
+
+- for one project: `.agent/skills/` in that project's root
+- for all projects: `.gemini/antigravity/skills/` in your home folder
+
+Then ask the agent whether speaker-skills is installed; the placeholder skill answers.
+
+## Repo check
+
+Every push runs a check in GitHub Actions. It fails when the repo contains:
+
+- private leftovers: home-directory paths, private skill names, employer names, email
+  addresses (except `example.com`, `example.org`, `example.net`), or paid-course material
+- a skill that breaks the [Agent Skills spec](https://agentskills.io/specification): no
+  `SKILL.md`, no frontmatter, a `name` that is not lowercase-with-hyphens or does not
+  match its folder, a `description` that is missing or over 1024 characters, frontmatter
+  keys outside the spec, or a Claude-Code-only plugin path variable
+
+Run it on your machine before you push (needs [Node.js](https://nodejs.org) 22 or later),
+from the repo folder:
+
+```
+npm run check
+```
+
+It prints `Repo check passed.` or one line per problem with the file and line number.
+The check's own tests run with `npm test`.
 
 ## Licence
 
