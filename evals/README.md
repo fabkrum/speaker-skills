@@ -48,5 +48,11 @@ Results on 2026-10-25, one run per arm:
 | `talk-builder-brief-first` | 1.00 | 0.25 | +0.75 |
 | `talk-builder-storyboard-critique` | 1.00 | 0.17 | +0.83 |
 | `talk-builder-deck` | 0.89 | 0.11 | +0.78 |
+| `rehearsal-coach-sample` | 1.00 | 0.00 | +1.00 |
 
 `talk-builder-deck` misses only `deck-check-passed`, for the sandbox reason above.
+
+`rehearsal-coach-sample` ran Whisper inside the eval sandbox without trouble. Its baseline scores 0
+partly by construction: the graders read the skill's take folder (`rehearsals/take-01/`), which an
+agent without the skill has no reason to create, so read that Δ as "the skill's report and logs
+exist", and the `llm` grader as the judgement of their quality.
