@@ -11,13 +11,18 @@ adds value.
 | `talk-builder-storyboard-critique` | `talk-builder` | Brief + storyboard → a critique file with curse-of-knowledge findings per slide and the structure, no deck |
 | `talk-builder-deck` | `talk-builder` | Brief + storyboard + style answers → a style file in the talks folder and a deck in that style that passes the deck check |
 | `companion-guide-storyboard` | `companion-guide` | Storyboard + speaker notes → one HTML guide, one section per slide, the next step, further reading, the colophon, that passes the guide check |
+| `rehearsal-coach-sample` | `rehearsal-coach` | The sample recording → a report that opens with the goal the last talk set, words per minute and fillers within the hand count's tolerance, nine red/yellow/green scores with timestamped receipts, three fixes and one measurable goal, appended to the take log |
 
 Run from the repo folder. The cases write files and run the skills' scripts, so they need
 Bash, Write and Edit, and the deck and guide checks need Google Chrome on the machine:
 
 ```
-claude plugin eval . --allow-tools Bash Write Edit
+claude plugin eval . --allow-tools Bash Write Edit --scaffold
 ```
+
+`--scaffold` lets `rehearsal-coach-sample` copy the skill's example talks folder (the sample
+recording and a talk log holding the last talk's goal) into its workspace with `setup.sh`; the
+other cases have no setup. That case needs ffmpeg and Whisper on the machine.
 
 The deck check is the same script the skill runs (`skills/html-slides/scripts/check-deck.mjs`).
 It writes `deck-check.json` next to the deck; the `deck-check-passed` graders read that file.
@@ -47,9 +52,15 @@ Results on 2026-10-25, one run per arm:
 | `talk-builder-storyboard-critique` | 1.00 | 0.17 | +0.83 |
 | `talk-builder-deck` | 0.89 | 0.11 | +0.78 |
 | `companion-guide-storyboard` | 0.86 | 0.00 | +0.86 |
+| `rehearsal-coach-sample` | 1.00 | 0.00 | +1.00 |
 
 `talk-builder-deck` misses only `deck-check-passed`, for the sandbox reason above.
 `companion-guide-storyboard` misses only `guide-check-passed`, for the same reason: the guide
 was built with seven sections, the next step and slide 2 in the colophon; the llm judge voted
 PASS, FAIL, PASS. The eval tool seals the kept workspace, so the guide could not be re-checked
 outside it.
+
+`rehearsal-coach-sample` ran Whisper inside the eval sandbox without trouble. Its baseline scores 0
+partly by construction: the graders read the skill's take folder (`rehearsals/take-01/`), which an
+agent without the skill has no reason to create, so read that Δ as "the skill's report and logs
+exist", and the `llm` grader as the judgement of their quality.

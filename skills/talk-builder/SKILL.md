@@ -1,8 +1,8 @@
 ---
 name: talk-builder
-description: Helps a speaker turn an idea into a talk and its deck, in order - a short talk brief interview (one goal, one desired outcome, one next step, a throughline of at most 15 words, the audience, talk or workshop), a critique of the headlines-only storyboard before anything is built (curse of knowledge, structure, audience fit), a one-time style interview saved as a style file that every later talk reuses, then a slide-by-slide build of an offline html-slides deck with image slides in that style, "AI-generated" labels on photorealistic AI images, speaker notes as cues, and a final story pass. Use when the speaker wants help with a talk, a keynote, a meetup or conference session or a workshop, has a storyboard or an outline to turn into slides, wants their talk's story checked, or wants slides that look like theirs.
+description: Helps a speaker turn an idea into a talk and its deck, in order - a short talk brief interview (one goal, one desired outcome, one next step, a throughline of at most 15 words, the audience, talk or workshop), a critique of the headlines-only storyboard before anything is built (curse of knowledge, structure, audience fit), a one-time style interview saved as a style file that every later talk reuses, then a slide-by-slide build of an offline html-slides deck with image slides in that style, "AI-generated" labels on photorealistic AI images, speaker notes as cues, and a final story pass; Google Slides instead of HTML on request, through the speaker's Google Workspace CLI. Use when the speaker wants help with a talk, a keynote, a meetup or conference session or a workshop, has a storyboard or an outline to turn into slides, wants their talk's story checked, or wants slides that look like theirs.
 license: MIT-0
-compatibility: Needs Node.js 22 or later and the html-slides skill from the same plugin next to this one. The deck check needs Google Chrome, Chromium, Edge or Brave. Images come from whatever image tool the agent has; without one the deck is built with placeholders and written prompts.
+compatibility: Needs Node.js 22 or later and the html-slides skill from the same plugin next to this one. The deck check needs Google Chrome, Chromium, Edge or Brave. Images come from whatever image tool the agent has; without one the deck is built with placeholders and written prompts. Google Slides, optional, needs the Google Workspace CLI (gws) logged in to the speaker's own Google account.
 ---
 
 # talk-builder
@@ -223,11 +223,29 @@ Tell the speaker:
 
 ## Google Slides instead
 
-When the speaker's event wants Google Slides and the speaker has set up the Google Workspace
-CLI (`gws`), build the same slides there after gate 5's story pass: one full-bleed image per
-slide with the sentence in a shape's own text frame over a semi-opaque panel, the
-"AI-generated" label on photorealistic AI images, alt text on every image, and the notes in
-the speaker notes. Then export every slide as an image and look at each one; the html-slides
-check does not run on Google Slides, so contrast over pictures is checked by eye against
-`accessibility.md` §1. Without the CLI, offer the HTML deck; do not ask the speaker to install
-anything for this.
+HTML is the default. Build Google Slides only when the speaker asks for it, for example because
+the event wants it. Do it after gate 5, from the same `deck.json` and style file, from this
+skill's folder:
+
+```
+node scripts/google-slides.mjs <talk>/slides/deck.json
+```
+
+It runs the same gates, builds the HTML deck too (the offline fallback), then uses the speaker's
+Google Workspace CLI (`gws`) and their own login. It builds the same slides:
+full-bleed image slides with the sentence inside the panel shape's own text frame, the
+"AI-generated" label on photorealistic AI images, alt text, the sentence-only, black and QR
+slides, and the notes in the speaker notes. Google Slides has no blur, so the panel's opacity
+goes up where needed to keep 4.5:1; the script names those slides. Pictures must be PNG, JPEG or
+GIF.
+
+- **Exit 0:** give the speaker the address it prints. Then look at every PNG it saved in
+  `<talk>/slides/google-slides/`, by eye against `accessibility.md` §1: the html-slides check
+  does not run on Google Slides. Fix in `deck.json` and run it again; it makes a new
+  presentation each time.
+- **Exit 3:** Google Slides is not available, because `gws` is missing or not logged in. Tell
+  the speaker so in those words, and offer the HTML deck, which is built: check it with
+  html-slides as in gate 5 and hand it over. Do not install anything for them unasked. If they
+  want Google Slides next time, walk them through `references/google-slides.md` in this skill's
+  folder, one command at a time.
+- **Exit 1:** a gate failed or Google refused a request; the message says which.

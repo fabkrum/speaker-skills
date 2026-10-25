@@ -1,0 +1,14 @@
+{
+  "talks": [
+    {
+      "talk": "web-pages-that-respond",
+      "date": "2026-09-18",
+      "notes": "The recording of the real talk: every key line ran straight into the next one, and the room never had a moment to take a number in. Feedback: 'great content, hard to keep up'.",
+      "goal": {
+        "text": "Pause after every key line: at least 5 pauses of 1.5 seconds or more in the opener",
+        "metric": "pauses",
+        "min": 5
+      }
+    }
+  ]
+}
