@@ -6,7 +6,8 @@ Agent skills for speakers who want to get better with every talk, for Claude Cod
 Google Antigravity:
 
 - `talk-builder`: from a brief to a deck in your own style: the talk brief, a critique of your storyboard
-  before anything is built, a style file written once, then image slides that check themselves
+  before anything is built, a style file written once, then image slides that check themselves;
+  Google Slides instead, if you set up the Google Workspace CLI
 - `html-slides`: a slide deck that runs in any browser, no account needed
 - `rehearsal-coach`: watch your recording back with numbers, and carry one goal to the next talk
 - `companion-guide`: the guide people get after your talk, one section per slide, ending in one next step
