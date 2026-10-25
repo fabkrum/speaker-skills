@@ -1,0 +1,92 @@
+schema_version: "1.0"
+name: talk-builder-storyboard-critique
+description: >
+  A speaker gives the full talk brief and a headlines-only storyboard full of jargon and with a
+  flat structure. The storyboard must be critiqued before anything is built, in a critique
+  file that reports curse-of-knowledge findings per slide and the structure, and no deck.
+tags: [talk-builder]
+execution:
+  max_turns: 30
+  timeout_seconds: 900
+  allowed_tools: [Read, Write, Edit, Bash, Glob, Grep, Skill]
+  prompt: |
+    I need help with my talk. Work in the folder `talk/`. Here is everything for the brief:
+
+    - Goal: drive action. I want people to change how they write click handlers.
+    - Outcome: they find and split one long task in their own app.
+    - Next step: this week, record one interaction in Chrome DevTools and split the longest
+      task they find.
+    - Throughline: "Split long tasks and your page answers every click at once."
+    - Audience: about 60 people at a DevFest, mostly junior and mid-level front-end
+      developers. Most have heard of Core Web Vitals but never profiled a page. They came
+      because their pages feel slow.
+    - Format: a 20-minute talk, no live demo, 5 minutes of Q&A at the end.
+    - Room: a dimmable hall, about 20 m deep, 16:9 projector.
+    - The guide will be at https://example.com/split-long-tasks.
+
+    And here is my storyboard, headlines only:
+
+    1. Agenda
+    2. INP, TBT and the 200 ms p75 threshold
+    3. Long tasks > 50 ms on the main thread
+    4. scheduler.yield() vs setTimeout(0) vs isInputPending
+    5. Our INP went from 480 to 160
+    6. Event loop internals
+    7. Questions?
+
+    Please check the storyboard before you build anything. Don't build slides in this step.
+runs: 1
+graders:
+  - name: brief-written
+    type: regex
+    target:
+      source: file
+      path: talk/talk-brief.md
+    pattern: 'Throughline:\s*\S'
+  - name: critique-written
+    type: file_exists
+    path: talk/storyboard-critique.md
+  - name: curse-of-knowledge-section
+    type: regex
+    target:
+      source: file
+      path: talk/storyboard-critique.md
+    pattern: '^##\s+Curse of knowledge'
+    flags: im
+  - name: structure-section
+    type: regex
+    target:
+      source: file
+      path: talk/storyboard-critique.md
+    pattern: '^##\s+Structure'
+    flags: im
+  - name: no-deck-yet
+    type: file_exists
+    path: talk/slides/index.html
+    exists: false
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: talk-builder
+    arm: with-only
+  - name: critique-finds-the-problems
+    type: llm
+    focus:
+      source: file
+      path: talk/storyboard-critique.md
+    criteria: |
+      The file critiques a seven-slide storyboard for a 20-minute talk to junior and mid-level
+      front-end developers who have never profiled a page. Pass only if all hold:
+      - It names jargon the audience will not know on specific slides: at least two of INP,
+        TBT, p75, "long tasks", scheduler.yield / isInputPending, "event loop internals".
+      - It names at least one other curse-of-knowledge failure besides jargon, tied to a slide
+        (for example skipped steps, abstraction without an example, missing context or why it
+        matters, assumed buy-in, too much at once).
+      - It says the structure is a flat list or lacks tension, and proposes a structure with
+        tension (for example problem → solution → proof → next step).
+      - It flags the agenda opening (proposing a hook instead) or the "Questions?" close, or both.
+      - It notices that the one next step (record one interaction and split the longest task)
+        is missing from the storyboard, or proposes ending on it.
+      - It flags slide 6 (event loop internals) as off the throughline, too deep, or to cut or
+        move.
+      - It gives a short ranked list of fixes.

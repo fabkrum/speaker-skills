@@ -1,0 +1,47 @@
+{
+  "title": "Record, watch, fix one thing",
+  "lang": "en",
+  "slides": [
+    {
+      "type": "image",
+      "image": "images/phone-on-stand.svg",
+      "alt": "A phone on a small stand, recording an empty desk",
+      "ai": "illustration",
+      "sentence": "Your phone is the only rehearsal coach you need.",
+      "panel": "bottom-left",
+      "notes": "Hook: show of hands, who has watched themselves speak?"
+    },
+    {
+      "type": "image",
+      "image": "images/mountain-path.svg",
+      "alt": "A path winding up a green mountain towards a snowy peak",
+      "sentence": "Each recording shows you the next step up.",
+      "panel": "top",
+      "dim": 0.7,
+      "notes": "One goal per talk, not ten."
+    },
+    {
+      "type": "text",
+      "sentence": "Three recorded run-throughs are enough to hear the difference.",
+      "figure": "3",
+      "notes": "Comfort, refine, polish."
+    },
+    {
+      "type": "text",
+      "sentence": "One command pulls the sound out of the video.",
+      "code": "ffmpeg -i rehearsal.mp4 -vn rehearsal.wav",
+      "notes": "Read the command aloud."
+    },
+    {
+      "type": "black",
+      "title": "Which habit would you fix first?",
+      "notes": "Black slide: ask the room which habit they would fix first. Wait."
+    },
+    {
+      "type": "qr",
+      "sentence": "Everything from this talk, and your next step, is in the guide.",
+      "url": "https://example.com/better-with-every-talk",
+      "notes": "Last line, then stop."
+    }
+  ]
+}
