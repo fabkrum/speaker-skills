@@ -1,6 +1,6 @@
 # speaker-skills
 
-**Under construction.** The plugin installs with two skills so far, `talk-builder` and `html-slides`; the other two follow.
+**Under construction.** The plugin installs with three skills so far, `talk-builder`, `html-slides` and `rehearsal-coach`; `companion-guide` follows.
 
 Agent skills for speakers who want to get better with every talk, for Claude Code and
 Google Antigravity:
@@ -35,7 +35,7 @@ On Claude Code older than 2.1.275, add the marketplace first, then install:
 /plugin install speaker-skills@speaker-skills
 ```
 
-Run `/plugin` and the `talk-builder` and `html-slides` skills show under `speaker-skills`.
+Run `/plugin` and the `talk-builder`, `html-slides` and `rehearsal-coach` skills show under `speaker-skills`.
 
 ### Google Antigravity
 
@@ -51,6 +51,10 @@ skills/
     SKILL.md
     scripts/
     assets/
+  rehearsal-coach/
+    SKILL.md
+    scripts/
+    assets/
 ```
 
 Copy the folders you want from `skills/` into one of Antigravity's skills folders. `talk-builder`
@@ -59,7 +63,8 @@ builds its decks with `html-slides`, so copy both:
 - for one project: `.agent/skills/` in that project's root
 - for all projects: `.gemini/antigravity/skills/` in your home folder
 
-Then ask the agent for help with a talk; `talk-builder` takes it from there.
+Then ask the agent for help with a talk; `talk-builder` takes it from there. After a recorded
+rehearsal, hand it the recording; `rehearsal-coach` takes over.
 Copy the repo's `references/` folder next to your skills too: the skills point to it for the
 method's rules.
 
@@ -69,6 +74,10 @@ method's rules.
 - Google Chrome (or Chromium, Edge, Brave) for the deck check, which tests every deck in a real
   browser. Set `CHROME_PATH` if yours is somewhere unusual. The decks themselves run in any
   browser, offline.
+- [ffmpeg](https://ffmpeg.org) and [OpenAI Whisper](https://github.com/openai/whisper) for
+  `rehearsal-coach` to measure recordings. Without them it gives you the one-page manual
+  checklist instead. Install steps for macOS, Windows and Linux are in
+  [its `SKILL.md`](skills/rehearsal-coach/SKILL.md#install-the-tools).
 
 ## Repo check
 

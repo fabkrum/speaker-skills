@@ -10,13 +10,18 @@ adds value.
 | `talk-builder-brief-first` | `talk-builder` | A request for slides gets the brief interview first: no critique, no deck, no invented throughline |
 | `talk-builder-storyboard-critique` | `talk-builder` | Brief + storyboard → a critique file with curse-of-knowledge findings per slide and the structure, no deck |
 | `talk-builder-deck` | `talk-builder` | Brief + storyboard + style answers → a style file in the talks folder and a deck in that style that passes the deck check |
+| `rehearsal-coach-sample` | `rehearsal-coach` | The sample recording → a report that opens with the goal the last talk set, words per minute and fillers within the hand count's tolerance, nine red/yellow/green scores with timestamped receipts, three fixes and one measurable goal, appended to the take log |
 
 Run from the repo folder. The cases write files and run the skills' scripts, so they need
 Bash, Write and Edit, and the deck check needs Google Chrome on the machine:
 
 ```
-claude plugin eval . --allow-tools Bash Write Edit
+claude plugin eval . --allow-tools Bash Write Edit --scaffold
 ```
+
+`--scaffold` lets `rehearsal-coach-sample` copy the skill's example talks folder (the sample
+recording and a talk log holding the last talk's goal) into its workspace with `setup.sh`; the
+other cases have no setup. That case needs ffmpeg and Whisper on the machine.
 
 The deck check is the same script the skill runs (`skills/html-slides/scripts/check-deck.mjs`).
 It writes `deck-check.json` next to the deck; the `deck-check-passed` graders read that file.
