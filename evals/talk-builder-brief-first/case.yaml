@@ -23,9 +23,11 @@ execution:
 runs: 1
 graders:
   - name: no-deck-yet
-    type: file_exists
-    path: talk/slides/index.html
-    exists: false
+    type: tool_used
+    tool: Write
+    input_match: '\.html'
+    min: 0
+    max: 0
   - name: no-critique-yet
     type: file_exists
     path: talk/storyboard-critique.md
@@ -49,8 +51,9 @@ graders:
       - It does not present finished slides, and it does not critique the storyboard slide by
         slide yet.
       - It asks the speaker for the talk brief: at least the talk's goal or the one thing the
-        audience should do, think or feel afterwards, a throughline or core message in one
-        short sentence, and who the audience is (for example their background or what they
-        already know).
+        audience should do, think or feel afterwards, and who the audience is (for example
+        their background or what they already know).
+      - It asks for a throughline or core message in one short sentence, or says it will
+        draft one from the answers for the speaker to confirm before going on.
       - It asks whether this is a talk or a workshop, or how long the slot is.
       - It does not invent the answers (a made-up throughline or audience) and carry on.

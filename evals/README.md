@@ -35,3 +35,10 @@ command unsandboxed.
 
 The same limit applies to `talk-builder-deck`'s `deck-check-passed` grader, which reads the same
 report. The two other `talk-builder` cases run no browser.
+
+Results on 2026-10-25, one run per arm:
+
+| Case | With plugin | Without | Δ |
+|---|---|---|---|
+| `talk-builder-brief-first` | 1.00 | 0.25 | +0.75 |
+| `talk-builder-storyboard-critique` | 1.00 | 0.17 | +0.83 |
