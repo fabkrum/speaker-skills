@@ -46,5 +46,10 @@ Results on 2026-10-25, one run per arm:
 | `talk-builder-brief-first` | 1.00 | 0.25 | +0.75 |
 | `talk-builder-storyboard-critique` | 1.00 | 0.17 | +0.83 |
 | `talk-builder-deck` | 0.89 | 0.11 | +0.78 |
+| `companion-guide-storyboard` | 0.86 | 0.00 | +0.86 |
 
 `talk-builder-deck` misses only `deck-check-passed`, for the sandbox reason above.
+`companion-guide-storyboard` misses only `guide-check-passed`, for the same reason: the guide
+was built with seven sections, the next step and slide 2 in the colophon; the llm judge voted
+PASS, FAIL, PASS. The eval tool seals the kept workspace, so the guide could not be re-checked
+outside it.
