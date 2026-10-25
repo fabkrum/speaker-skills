@@ -1,0 +1,101 @@
+schema_version: "1.0"
+name: companion-guide-storyboard
+description: >
+  A speaker hands over a storyboard with speaker notes and wants the companion guide. The
+  guide must be one HTML file with one section per slide in order, a "Your next step" block
+  with the talk's one action, further reading after it, a colophon listing the AI-generated
+  image, and pass the guide check (sections, next step, colophon, 390 px, text size, alt text)
+  in a real browser.
+tags: [companion-guide]
+execution:
+  max_turns: 50
+  timeout_seconds: 1200
+  allowed_tools: [Read, Write, Edit, Bash, Glob, Grep, Skill]
+  prompt: |
+    I gave my five-minute lightning talk "Rehearse with your phone" last night and promised
+    the room a guide. Write it in `guide/` in the current directory, so I can put it online
+    and the QR code on my last slide. I'm not around to answer questions, so take everything
+    below as confirmed. The audience: about 40 junior developers at a meetup, most have never
+    filmed themselves. The one next step: record one run-through this week and watch it back
+    once. The guide will be at https://example.com/rehearse-with-your-phone.
+
+    Storyboard, in order, with my speaker notes:
+
+    1. "Watching yourself speak is the fastest way to get better."
+       Notes: hands up, who has watched a video of themselves speak? Promise the guide.
+    2. "It hurts once, then it helps." (a photorealistic AI image of a speaker wincing at
+       their own recording, made with an image model from a prompt)
+       Notes: my first recording, 23 "so"s in five minutes. The second time: half.
+    3. "A phone at eye height is all the kit you need."
+       Notes: books, not a tripod. Quiet room. Landscape. Nothing else.
+    4. "Count three things, not thirty." Filler words per minute, a pause after each key
+       line, time against the slot.
+       Notes: one example each. WPM: about 130 to 160 is conversational.
+    5. "Three recorded run-throughs are enough to hear the difference."
+       Notes: comfort, refine, polish. One purpose each.
+    6. Black slide: I ask which habit they would fix first, and wait for two answers.
+    7. "Your next step: record one run-through this week." The guide's QR code.
+       Notes: last line, scripted: record one this week, watch it once.
+
+    I don't have the images as files, so the guide can go without pictures. Further reading
+    I'd like in it: Whisper (https://github.com/openai/whisper) for a transcript of a
+    recording, and FFmpeg (https://ffmpeg.org/).
+runs: 1
+graders:
+  - name: guide-built
+    type: file_exists
+    path: guide/index.html
+  - name: guide-check-passed
+    type: regex
+    target:
+      source: file
+      path: guide/guide-check.json
+    pattern: '"passed":\s*true'
+  - name: guide-check-ran
+    type: tool_used
+    tool: Bash
+    input_match: check-guide
+  - name: seven-sections
+    type: regex
+    target:
+      source: file
+      path: guide/index.html
+    pattern: '<section class="guide-slide"'
+    match: count:7
+  - name: next-step-block
+    type: regex
+    target:
+      source: file
+      path: guide/index.html
+    pattern: '>Your next step</h2>'
+  - name: ai-image-in-colophon
+    type: regex
+    target:
+      source: file
+      path: guide/index.html
+    pattern: 'id="colophon"[\s\S]*Slide 2\b'
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: companion-guide
+    arm: with-only
+  - name: guide-explains-the-talk
+    type: llm
+    focus:
+      source: file
+      path: guide/index.html
+    criteria: |
+      The file is the companion guide to a seven-slide lightning talk. Pass only if all hold:
+      - There are exactly seven slide sections, in the storyboard's order, each naming the
+        slide's concept in a heading (not "Slide 3" alone, not just the slide's sentence) and
+        explaining it in a few sentences a junior developer who missed the talk could follow.
+      - The explanations use the speaker's notes (the 23 "so"s story, books not a tripod,
+        comfort / refine / polish, 130 to 160 words per minute) rather than generic advice,
+        and spell out terms such as "WPM" or "filler words" where they first appear.
+      - After the sections there is one "Your next step" block whose one action is recording
+        one run-through this week and watching it back once, followed by concrete steps on how
+        to do it. It does not ask for several different things.
+      - "Further reading" comes after the next step and links Whisper and FFmpeg.
+      - A colophon lists slide 2's image as AI-generated.
+      - Nothing loads from the internet (no http or https stylesheets, scripts, fonts or
+        images); links to read are fine.

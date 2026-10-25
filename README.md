@@ -1,6 +1,6 @@
 # speaker-skills
 
-**Under construction.** The plugin installs with two skills so far, `talk-builder` and `html-slides`; the other two follow.
+**Under construction.** The plugin installs with three skills so far, `talk-builder`, `html-slides` and `companion-guide`; `rehearsal-coach` follows.
 
 Agent skills for speakers who want to get better with every talk, for Claude Code and
 Google Antigravity:
@@ -35,7 +35,7 @@ On Claude Code older than 2.1.275, add the marketplace first, then install:
 /plugin install speaker-skills@speaker-skills
 ```
 
-Run `/plugin` and the `talk-builder` and `html-slides` skills show under `speaker-skills`.
+Run `/plugin` and the `talk-builder`, `html-slides` and `companion-guide` skills show under `speaker-skills`.
 
 ### Google Antigravity
 
@@ -51,10 +51,15 @@ skills/
     SKILL.md
     scripts/
     assets/
+  companion-guide/
+    SKILL.md
+    scripts/
+    references/
 ```
 
 Copy the folders you want from `skills/` into one of Antigravity's skills folders. `talk-builder`
-builds its decks with `html-slides`, so copy both:
+builds its decks with `html-slides`, and `companion-guide` uses its browser check, so copy
+`html-slides` along with either of them:
 
 - for one project: `.agent/skills/` in that project's root
 - for all projects: `.gemini/antigravity/skills/` in your home folder
@@ -66,8 +71,8 @@ method's rules.
 ## What the skills need
 
 - [Node.js](https://nodejs.org) 22 or later, for the skills' scripts.
-- Google Chrome (or Chromium, Edge, Brave) for the deck check, which tests every deck in a real
-  browser. Set `CHROME_PATH` if yours is somewhere unusual. The decks themselves run in any
+- Google Chrome (or Chromium, Edge, Brave) for the deck and guide checks, which test every
+  deck and guide in a real browser. Set `CHROME_PATH` if yours is somewhere unusual. The decks and guides themselves run in any
   browser, offline.
 
 ## Repo check

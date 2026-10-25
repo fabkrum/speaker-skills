@@ -10,9 +10,10 @@ adds value.
 | `talk-builder-brief-first` | `talk-builder` | A request for slides gets the brief interview first: no critique, no deck, no invented throughline |
 | `talk-builder-storyboard-critique` | `talk-builder` | Brief + storyboard → a critique file with curse-of-knowledge findings per slide and the structure, no deck |
 | `talk-builder-deck` | `talk-builder` | Brief + storyboard + style answers → a style file in the talks folder and a deck in that style that passes the deck check |
+| `companion-guide-storyboard` | `companion-guide` | Storyboard + speaker notes → one HTML guide, one section per slide, the next step, further reading, the colophon, that passes the guide check |
 
 Run from the repo folder. The cases write files and run the skills' scripts, so they need
-Bash, Write and Edit, and the deck check needs Google Chrome on the machine:
+Bash, Write and Edit, and the deck and guide checks need Google Chrome on the machine:
 
 ```
 claude plugin eval . --allow-tools Bash Write Edit
@@ -34,7 +35,9 @@ once the eval can run the check, for example on Linux or when the eval tool lets
 command unsandboxed.
 
 The same limit applies to `talk-builder-deck`'s `deck-check-passed` grader, which reads the same
-report. The two other `talk-builder` cases run no browser.
+report, and to `companion-guide-storyboard`'s `guide-check-passed` grader, which reads the
+`guide-check.json` written by the guide check (`skills/companion-guide/scripts/check-guide.mjs`,
+the guide half of the same artefact check). The two other `talk-builder` cases run no browser.
 
 Results on 2026-10-25, one run per arm:
 
