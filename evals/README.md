@@ -42,3 +42,6 @@ Results on 2026-10-25, one run per arm:
 |---|---|---|---|
 | `talk-builder-brief-first` | 1.00 | 0.25 | +0.75 |
 | `talk-builder-storyboard-critique` | 1.00 | 0.17 | +0.83 |
+| `talk-builder-deck` | 0.89 | 0.11 | +0.78 |
+
+`talk-builder-deck` misses only `deck-check-passed`, for the sandbox reason above.

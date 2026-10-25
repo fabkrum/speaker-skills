@@ -110,7 +110,9 @@ graders:
       - Most slides are image slides (an image or placeholder image with one sentence); slide 4
         may show the three things as a short comparison.
       - Each slide shows one full sentence, not a topic label and not a bullet list.
-      - Slide 2 carries a visible "AI-generated" label; the other image slides do not.
+      - Slide 2 carries a visible "AI-generated" label. Other image slides may carry it too
+        when their picture will also be a photorealistic AI image (the speaker has no
+        photos yet and gets AI prompts); a slide marked as an illustration carries none.
       - Every image has alt text that says what it means, not "image of" and not the sentence
         again.
       - The speaker notes (aside class="notes") are short cues, not a written-out script of
