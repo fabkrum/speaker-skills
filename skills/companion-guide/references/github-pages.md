@@ -35,31 +35,57 @@ does and what they should see, and wait for each step to work before showing the
    "Your site is live at" with the address. Open it on a phone. The first time can take up to
    ten minutes.
 
-**To update the guide** later, open `index.html` in the repository, click the **…** menu,
-**Upload files**, drop the new `index.html`, and commit. The address stays the same.
+**If a step stopped halfway** and the speaker starts again: when step 1 says the name already
+exists, the repository was created the first time. Open it from their profile instead
+(`https://github.com/<github-username>/<repository-name>`) and go on with step 2, or with
+step 3 if `index.html` is already listed. Step 3 can be repeated safely; if Pages already shows
+the address, go on with step 4.
+
+**To update the guide** later, open the repository, click **Add file** (above the file list),
+then **Upload files**, drop the new `index.html` (it replaces the old one), and click
+**Commit changes**. The address stays the same.
 
 ## With the GitHub CLI
 
 For speakers who already use the command line and have the GitHub CLI (`gh`) set up and
-signed in (`gh auth status` shows their account). Run each step on its own, from the folder
-that will hold the published copy:
+signed in (`gh auth status` shows their account). Run each step on its own, starting in the
+talk's folder (the one that holds `guide/`):
 
 1. Make a folder for the published copy, next to the talk (not inside it):
-   `mkdir rehearse-with-your-phone-guide`
-2. Copy `guide/index.html` into that folder, and go into the folder.
-3. Start a repository on the `main` branch: `git init -b main`
-4. Add the file: `git add index.html`
-5. Save it: `git commit -m "Companion guide"`
-6. Create the public repository on GitHub and push the file:
+   `mkdir ../rehearse-with-your-phone-guide`
+2. Copy the guide into it: `cp guide/index.html ../rehearse-with-your-phone-guide/`
+3. Go into that folder: `cd ../rehearse-with-your-phone-guide`
+4. Start a repository on the `main` branch: `git init -b main`
+5. Add the file: `git add index.html`
+6. Save it: `git commit -m "Companion guide"`
+7. Create the public repository on GitHub and push the file:
    `gh repo create rehearse-with-your-phone --public --source . --push`
-7. Switch Pages on for the `main` branch:
+8. Switch Pages on for the `main` branch:
    `gh api --method POST repos/<github-username>/rehearse-with-your-phone/pages -f "source[branch]=main" -f "source[path]=/"`
    It prints the site's details, including `"html_url"`.
-8. Check that it is built: `gh api repos/<github-username>/rehearse-with-your-phone/pages/builds/latest --jq .status`
+9. Check that it is built: `gh api repos/<github-username>/rehearse-with-your-phone/pages/builds/latest --jq .status`
    prints `built` once the guide is live; `building` means wait a minute and ask again.
 
-To update it, copy the new `index.html` into the folder, then `git add index.html`,
-`git commit -m "Update the guide"` and `git push`, one at a time.
+**If a step stopped halfway** and the speaker runs the steps again, check before repeating:
+
+- Step 1 says `File exists`: the folder is there; go on with step 2.
+- Step 4 says `Reinitialized existing Git repository`: harmless; go on.
+- Step 6 says `nothing to commit`: the file is already saved; go on with step 7.
+- Step 7 says the name `already exists`: the repository was created the first time, but the
+  push may not have happened. Connect the folder to it, as its own step:
+  `git remote add origin https://github.com/<github-username>/rehearse-with-your-phone.git`
+  (if it answers `remote origin already exists`, it is connected already), then push, as the
+  next step: `git push -u origin main`. It should end with `main -> main`, or say
+  `Everything up-to-date`.
+- Step 8 answers `HTTP 409` (Pages is already switched on): nothing to do; go on with step 9.
+
+To update it, run each of these on its own, from the folder that holds the published copy:
+
+1. Copy the new guide over the old one, from the talk folder next to it, for example
+   `cp ../rehearse-with-your-phone/guide/index.html index.html`
+2. Add it: `git add index.html`
+3. Save it: `git commit -m "Update the guide"`
+4. Publish it: `git push`
 
 ## The QR code on the last slide
 
