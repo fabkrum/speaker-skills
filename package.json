@@ -1,0 +1,8 @@
+{
+  "name": "speaker-skills",
+  "private": true,
+  "license": "MIT-0",
+  "scripts": {
+    "test": "node --test"
+  }
+}

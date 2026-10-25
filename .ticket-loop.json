@@ -1,0 +1,10 @@
+{
+  "test": "npm test --silent",
+  "link": ["node_modules"],
+  "risk": [
+    {"paths": ["**/references/**", "**/reference/**"], "why": "the method's reference texts: what speakers read and the skills apply"},
+    {"paths": ["LICENSE", "LICENSE-CONTENT"], "why": "the licences"},
+    {"paths": ["scripts/**", ".github/**", "**/*.test.*", "test/**", "tests/**"], "why": "a gate or its tests"},
+    {"paths": ["**/SKILL.md"], "why": "a skill's instructions"}
+  ]
+}
