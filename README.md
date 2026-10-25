@@ -1,6 +1,6 @@
 # speaker-skills
 
-**Under construction.** The plugin installs, but it holds only a placeholder skill so far.
+**Under construction.** The plugin installs with one skill so far, `html-slides`; the other three follow.
 
 Agent skills for speakers who want to get better with every talk, for Claude Code and
 Google Antigravity:
@@ -34,7 +34,7 @@ On Claude Code older than 2.1.275, add the marketplace first, then install:
 /plugin install speaker-skills@speaker-skills
 ```
 
-Run `/plugin` and the `placeholder` skill shows under `speaker-skills`.
+Run `/plugin` and the `html-slides` skill shows under `speaker-skills`.
 
 ### Google Antigravity
 
@@ -43,8 +43,10 @@ with a `SKILL.md` inside:
 
 ```
 skills/
-  placeholder/
+  html-slides/
     SKILL.md
+    scripts/
+    assets/
 ```
 
 Copy the folders you want from `skills/` into one of Antigravity's skills folders:
@@ -52,7 +54,16 @@ Copy the folders you want from `skills/` into one of Antigravity's skills folder
 - for one project: `.agent/skills/` in that project's root
 - for all projects: `.gemini/antigravity/skills/` in your home folder
 
-Then ask the agent whether speaker-skills is installed; the placeholder skill answers.
+Then ask the agent to build a deck from a storyboard; `html-slides` takes it from there.
+Copy the repo's `references/` folder next to your skills too: the skills point to it for the
+method's rules.
+
+## What the skills need
+
+- [Node.js](https://nodejs.org) 22 or later, for the skills' scripts.
+- Google Chrome (or Chromium, Edge, Brave) for the deck check, which tests every deck in a real
+  browser. Set `CHROME_PATH` if yours is somewhere unusual. The decks themselves run in any
+  browser, offline.
 
 ## Repo check
 
@@ -73,7 +84,12 @@ npm run check
 ```
 
 It prints `Repo check passed.` or one line per problem with the file and line number.
-The check's own tests run with `npm test`.
+The check's own tests, and the deck check's tests in headless Chrome, run with `npm test`.
+
+## Evals
+
+`evals/` holds `claude plugin eval` cases that give the plugin a realistic request and grade
+what it builds. See [`evals/README.md`](evals/README.md).
 
 ## Licence
 

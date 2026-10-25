@@ -14,6 +14,7 @@ Each text speaks about **the speaker**: whoever is preparing and giving the talk
 | [`concision.md`](concision.md) | Why saying less wins, answer first, what over-explaining looks like, fixes | On slides, notes and recordings |
 | [`accessibility.md`](accessibility.md) | Contrast, colour, motion, the file itself, and labelling AI-generated images | While building, and before sharing |
 | [`delivery.md`](delivery.md) | Sizing up the audience, reading the room, voice, eyes, the first minute, when things go wrong, Q&A | Rehearsal and the day itself |
+| [`style-file.md`](style-file.md) | The speaker's style file: look, scheme, colours, fonts, image kind, motif; its format and keys | Before the first deck, and on every build |
 | [`rehearsal-rubric.md`](rehearsal-rubric.md) | Three recorded run-throughs, what to measure, the nine-dimension rubric, the report, the take log and the talk log, the manual checklist | After each recorded rehearsal |
 
 ## Sources and credits
