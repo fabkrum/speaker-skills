@@ -1,11 +1,12 @@
 # speaker-skills
 
-**Under construction.** The plugin installs with one skill so far, `html-slides`; the other three follow.
+**Under construction.** The plugin installs with two skills so far, `talk-builder` and `html-slides`; the other two follow.
 
 Agent skills for speakers who want to get better with every talk, for Claude Code and
 Google Antigravity:
 
-- `talk-builder`: from a storyboard to a talk, with image slides in your own style
+- `talk-builder`: from a brief to a deck in your own style: the talk brief, a critique of your storyboard
+  before anything is built, a style file written once, then image slides that check themselves
 - `html-slides`: a slide deck that runs in any browser, no account needed
 - `rehearsal-coach`: watch your recording back with numbers, and carry one goal to the next talk
 - `companion-guide`: the guide people get after your talk, one section per slide, ending in one next step
@@ -34,7 +35,7 @@ On Claude Code older than 2.1.275, add the marketplace first, then install:
 /plugin install speaker-skills@speaker-skills
 ```
 
-Run `/plugin` and the `html-slides` skill shows under `speaker-skills`.
+Run `/plugin` and the `talk-builder` and `html-slides` skills show under `speaker-skills`.
 
 ### Google Antigravity
 
@@ -43,18 +44,22 @@ with a `SKILL.md` inside:
 
 ```
 skills/
+  talk-builder/
+    SKILL.md
+    scripts/
   html-slides/
     SKILL.md
     scripts/
     assets/
 ```
 
-Copy the folders you want from `skills/` into one of Antigravity's skills folders:
+Copy the folders you want from `skills/` into one of Antigravity's skills folders. `talk-builder`
+builds its decks with `html-slides`, so copy both:
 
 - for one project: `.agent/skills/` in that project's root
 - for all projects: `.gemini/antigravity/skills/` in your home folder
 
-Then ask the agent to build a deck from a storyboard; `html-slides` takes it from there.
+Then ask the agent for help with a talk; `talk-builder` takes it from there.
 Copy the repo's `references/` folder next to your skills too: the skills point to it for the
 method's rules.
 

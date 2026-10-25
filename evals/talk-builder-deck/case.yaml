@@ -1,0 +1,119 @@
+schema_version: "1.0"
+name: talk-builder-deck
+description: >
+  A speaker with a brief, a storyboard and style answers wants the deck. The style file is
+  written once into the talks folder, the deck is built as an html-slides deck in that style
+  with image slides, an "AI-generated" label on the photorealistic AI image and speaker notes
+  as cues, and it passes the deck check.
+tags: [talk-builder]
+execution:
+  max_turns: 60
+  timeout_seconds: 1500
+  allowed_tools: [Read, Write, Edit, Bash, Glob, Grep, Skill]
+  prompt: |
+    Build my lightning talk deck. I keep all my talks in `talks/`; this one goes in
+    `talks/rehearse-with-your-phone/`. I'm not around to answer questions, so take everything
+    below as confirmed, and where you'd normally wait for my yes, go ahead.
+
+    Brief: drive action. Outcome: people record their next rehearsal. Next step: record one
+    run-through this week and watch it once. Throughline: "Your phone is the rehearsal coach
+    you already own." Audience: about 40 junior developers at a meetup, most never filmed
+    themselves. A 5-minute talk, no Q&A, dimmable room, 16:9. The guide will be at
+    https://example.com/rehearse-with-your-phone.
+
+    Storyboard, headlines only:
+    1. Who has watched a video of themselves speak?
+    2. It hurts once, then it helps (a photorealistic AI photo of a speaker wincing at their
+       own recording)
+    3. A phone at eye height is all the kit you need
+    4. Count three things: filler words per minute, a pause after each key line, time against
+       the slot
+    5. Three recorded run-throughs are enough
+    6. Black slide: I ask which habit they would fix first, and wait
+    7. Your next step, with the guide's QR code
+
+    My style, since you'll ask: I like quiet early-morning photographs with lots of empty
+    space, like a Scandinavian interiors magazine. Dark background #1b1f24, white text, accent
+    #56b4e9. Photographs, the odd flat illustration. My motif is a small paper boat that turns
+    up in every picture. No stock photos of handshakes.
+
+    I have no image generator set up, so leave the pictures as placeholders and give me the
+    prompts.
+runs: 1
+graders:
+  - name: style-file-in-talks-folder
+    type: regex
+    target:
+      source: file
+      path: talks/speaker-style.md
+    pattern: 'motif:.*paper boat'
+    flags: i
+  - name: style-colours
+    type: regex
+    target:
+      source: file
+      path: talks/speaker-style.md
+    pattern: 'background:\s*"?#1b1f24'
+    flags: i
+  - name: deck-built
+    type: file_exists
+    path: talks/rehearse-with-your-phone/slides/index.html
+  - name: deck-in-style
+    type: regex
+    target:
+      source: file
+      path: talks/rehearse-with-your-phone/slides/index.html
+    pattern: '--deck-bg:\s*#1b1f24'
+    flags: i
+  - name: deck-check-passed
+    type: regex
+    target:
+      source: file
+      path: talks/rehearse-with-your-phone/slides/deck-check.json
+    pattern: '"passed":\s*true'
+  - name: ai-label-on-slide
+    type: regex
+    target:
+      source: file
+      path: talks/rehearse-with-your-phone/slides/index.html
+    pattern: 'class="ai-label[^"]*">AI-generated<'
+  - name: speaker-notes
+    type: regex
+    target:
+      source: file
+      path: talks/rehearse-with-your-phone/slides/index.html
+    pattern: '<aside class="notes">'
+    match: contains
+  - name: image-prompts-written
+    type: regex
+    target:
+      source: file
+      path: talks/rehearse-with-your-phone/image-prompts.md
+    pattern: 'paper boat'
+    flags: i
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: talk-builder
+    arm: with-only
+  - name: deck-follows-storyboard-and-style
+    type: llm
+    focus:
+      source: file
+      path: talks/rehearse-with-your-phone/slides/index.html
+    criteria: |
+      The file is an HTML slide deck for a seven-slide lightning talk. Pass only if all hold:
+      - There are seven slides in the storyboard's order: the hook question, "it hurts once,
+        then it helps", the phone at eye height, counting three things, three run-throughs, a
+        black slide, and a last slide with a QR code for
+        https://example.com/rehearse-with-your-phone.
+      - Most slides are image slides (an image or placeholder image with one sentence); slide 4
+        may show the three things as a short comparison.
+      - Each slide shows one full sentence, not a topic label and not a bullet list.
+      - Slide 2 carries a visible "AI-generated" label; the other image slides do not.
+      - Every image has alt text that says what it means, not "image of" and not the sentence
+        again.
+      - The speaker notes (aside class="notes") are short cues, not a written-out script of
+        what to say, except possibly the first and last lines.
+      - The black slide shows no visible text.
+      - Nothing loads from the internet.

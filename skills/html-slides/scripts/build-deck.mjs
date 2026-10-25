@@ -17,7 +17,7 @@ const TYPES = ['image', 'text', 'black', 'qr'];
 const AI = ['photo', 'illustration'];
 const PANELS = ['bottom-left', 'bottom', 'bottom-right', 'top-left', 'top', 'top-right'];
 
-const SCHEMES = {
+export const SCHEMES = {
   dark: { background: '#101418', text: '#ffffff', accent: '#56b4e9', panel: '#0c0e12' },
   light: { background: '#f6f4ef', text: '#14171c', accent: '#0072b2', panel: '#f6f4ef' },
 };
