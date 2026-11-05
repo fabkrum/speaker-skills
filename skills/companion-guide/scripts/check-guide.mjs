@@ -5,7 +5,9 @@
 // Exit 0 when the guide passes, 1 when it fails, 2 when the check could not run (no browser,
 // no guide at that path, nothing to compare the sections with, an unreadable guide.json or deck,
 // or the check broke). Writes guide-check.json next to index.html; eval graders read that file.
-// A run that exits 2 removes the old guide-check.json first, so a stale "passed" never outlives it.
+// A run that exits 2 removes the old guide-check.json first, so a stale "passed" does not outlive
+// it; where it cannot (a read-only folder), the exit-2 message names the old report as stale and
+// not to be trusted.
 //
 // It fails a guide when
 //   - it does not have exactly one section per storyboard slide, numbered and in the slides'
@@ -248,13 +250,22 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   // means the check could not run, exit 2, never an uncaught throw that exits 1.
   let report;
   let result;
+  // In a read-only folder the old report cannot be removed; then the message names it as stale.
+  const couldNotRun = (message) => {
+    console.error(message);
+    try {
+      if (report && statSync(report).isFile()) {
+        console.error(`${report} is stale: it is from an earlier run and could not be removed; do not trust it.`);
+      }
+    } catch {}
+    process.exit(2);
+  };
   try {
     report = join(dirname(resolve(guideFile(target))), 'guide-check.json');
     rmSync(report, { force: true });
     result = await checkGuide(target, { deck, storyboard });
   } catch (e) {
-    console.error(`Guide check could not run: ${e?.message ?? e}`);
-    process.exit(2);
+    couldNotRun(`Guide check could not run: ${e?.message ?? e}`);
   }
   try {
     writeFileSync(report, JSON.stringify({ ...result, guide: relative(dirname(report), result.guide) }, null, 2) + '\n');
@@ -262,8 +273,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     try {
       rmSync(report, { force: true }); // a half-written report must not read as a result
     } catch {}
-    console.error(`Guide check could not run: it checked the guide but could not write ${report}: ${e?.message ?? e}`);
-    process.exit(2);
+    couldNotRun(`Guide check could not run: it checked the guide but could not write ${report}: ${e?.message ?? e}`);
   }
   console.log(json ? JSON.stringify(result, null, 2) : formatReport(result));
   process.exit(result.passed ? 0 : 1);

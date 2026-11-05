@@ -1,6 +1,7 @@
 // The contract every skills/*/scripts/check-*.mjs keeps (CODING_STANDARDS.md): when it cannot do
 // its job it exits 2 ("could not run"), never 1 ("failed"), and it leaves no report behind, so an
-// old report that says "passed" cannot outlive a run that did not check anything.
+// old report that says "passed" cannot outlive a run that did not check anything. Where the old
+// report cannot be removed (a read-only folder), the exit-2 message names it as stale.
 // None of these cases needs a browser: each must be refused before one starts.
 
 import { test, after } from 'node:test';
@@ -97,8 +98,9 @@ for (const script of scripts) {
   });
 
   if (c.report) {
-    // A sealed eval workspace (evals/README.md) is read-only: the old report cannot be removed.
-    test(`${script} exits 2, not 1, when the old report cannot be removed`, (t) => {
+    // A sealed eval workspace (evals/README.md) is read-only: the old report cannot be removed, so
+    // it survives, and the message must say so, naming the report and that it is not to be trusted.
+    test(`${script} exits 2, not 1, and names the stale report when it cannot be removed`, (t) => {
       const dir = tmp();
       writeFileSync(join(dir, c.report), OLD_REPORT);
       const args = c.invalid(dir);
@@ -115,6 +117,7 @@ for (const script of scripts) {
       assert.match(result.stderr, /could not run/i);
       assert.doesNotMatch(result.stderr, /^\s+at /m, 'a stack trace instead of a plain message');
       assert.equal(readFileSync(join(dir, c.report), 'utf8'), OLD_REPORT);
+      assert.match(result.stderr, new RegExp(`${c.report.replace('.', '\\.')}[^\\n]*stale[^\\n]*do not trust`, 'i'));
     });
 
     test(`${script} exits 2, not 1, when its report path is a folder`, () => {

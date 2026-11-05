@@ -158,7 +158,8 @@ cause in `guide.json`, the deck or the style file, build again and re-check unti
 `Guide check passed`.
 
 Exit code 2 means the check could not run, which is not a pass, and it removes any old
-`guide-check.json`: no guide at that path, no browser was found (tell the
+`guide-check.json` (if it cannot, in a read-only folder, the message names the old
+`guide-check.json` as stale: do not trust it). The causes: no guide at that path, no browser was found (tell the
 speaker to install Google Chrome or set `CHROME_PATH`), the browser could not start because
 your shell runs in a sandbox that blocks it (run the same command outside the sandbox if your
 tool lets you, or give the speaker the one command to run), or there was no deck or storyboard

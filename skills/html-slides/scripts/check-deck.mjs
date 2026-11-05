@@ -4,7 +4,8 @@
 // Exit 0 when the deck passes, 1 when it fails, 2 when the check could not run (no browser, no
 // built deck at that path, or the check broke). Writes deck-check.json next to index.html; eval
 // graders read that file. A run that exits 2 removes the old deck-check.json first, so a stale
-// "passed" never outlives it.
+// "passed" does not outlive it; where it cannot (a read-only folder), the exit-2 message names the
+// old report as stale and not to be trusted.
 //
 // It fails a deck when
 //   - a slide's text reaches less than 4.5:1 against the pixels behind it, measured on a
@@ -260,13 +261,22 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   // means the check could not run, exit 2, never an uncaught throw that exits 1.
   let report;
   let result;
+  // In a read-only folder the old report cannot be removed; then the message names it as stale.
+  const couldNotRun = (message) => {
+    console.error(message);
+    try {
+      if (report && statSync(report).isFile()) {
+        console.error(`${report} is stale: it is from an earlier run and could not be removed; do not trust it.`);
+      }
+    } catch {}
+    process.exit(2);
+  };
   try {
     report = join(dirname(resolve(deckFile(target))), 'deck-check.json');
     rmSync(report, { force: true });
     result = await checkDeck(target);
   } catch (e) {
-    console.error(`Deck check could not run: ${e?.message ?? e}`);
-    process.exit(2);
+    couldNotRun(`Deck check could not run: ${e?.message ?? e}`);
   }
   try {
     writeFileSync(report, JSON.stringify({ ...result, deck: relative(dirname(report), result.deck) }, null, 2) + '\n');
@@ -274,8 +284,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     try {
       rmSync(report, { force: true }); // a half-written report must not read as a result
     } catch {}
-    console.error(`Deck check could not run: it checked the deck but could not write ${report}: ${e?.message ?? e}`);
-    process.exit(2);
+    couldNotRun(`Deck check could not run: it checked the deck but could not write ${report}: ${e?.message ?? e}`);
   }
   console.log(json ? JSON.stringify(result, null, 2) : formatReport(result));
   process.exit(result.passed ? 0 : 1);

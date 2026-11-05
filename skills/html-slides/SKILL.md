@@ -100,7 +100,8 @@ stays put.
    calmer part of the image.
 
    Exit code 2 means the check could not run, which is not a pass, and it removes any old
-   `deck-check.json`. Either there is no built deck at that path (build it first), no browser
+   `deck-check.json`. If it cannot (a read-only folder), the message names the old
+   `deck-check.json` as stale: do not trust it. Either there is no built deck at that path (build it first), no browser
    was found (tell the speaker to install Google Chrome or set `CHROME_PATH`), or the browser
    could not start because your shell runs in a sandbox that blocks it. Then run the same command
    again outside the sandbox if your agent can do that with the speaker's approval, or give the

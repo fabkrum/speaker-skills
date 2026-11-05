@@ -15,9 +15,11 @@ each one to them:
   result means nothing yet".
 
 A check that writes a report (`deck-check.json`, `guide-check.json`) removes the old one before
-it starts and writes the new one only when it finishes. An old "passed" must never outlive a
+it starts and writes the new one only when it finishes, so an old "passed" does not outlive a
 run that did not check anything. When it cannot remove the old report or write the new one (a
-read-only folder), that is exit 2 too. A new check script needs a case in that test.
+read-only folder), that is exit 2 too. In a read-only folder the old report cannot be removed
+and stays; then the exit-2 message names it and says it is stale and not to be trusted. A new
+check script needs a case in that test.
 
 ## A failed run leaves nothing behind, or names what it left
 
