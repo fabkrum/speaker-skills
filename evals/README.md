@@ -27,6 +27,41 @@ other cases have no setup. That case needs ffmpeg and Whisper on the machine.
 The deck check is the same script the skill runs (`skills/html-slides/scripts/check-deck.mjs`).
 It writes `deck-check.json` next to the deck; the `deck-check-passed` graders read that file.
 
+## Writing a case
+
+One folder per case under `evals/`, holding `case.yaml` and, when the case needs files in
+its workspace first, a setup script. `claude plugin eval init --bare` scaffolds an empty case;
+the fields this repo uses:
+
+- `schema_version: "1.0"`, `name` (the folder name), `description`, `tags` (the skill's name).
+- `execution`: `max_turns`, `timeout_seconds`, `allowed_tools`, and the `prompt`, written as a
+  speaker would ask, with every answer the agent would otherwise ask for ("take everything
+  below as confirmed"), because nobody answers during a run.
+- `context.scaffold_script: setup.sh`, only when the workspace needs files before the run. The
+  script runs in the workspace and copies from the repo (see
+  `rehearsal-coach-sample/setup.sh`). Such a case runs only with `--scaffold`.
+- `runs`: 1 here; raise it when a grader is flaky.
+- `graders`, each with a `name` and a `type`. This repo uses four:
+  - `file_exists` with `path`, and `exists: false` for a file that must not be there yet.
+  - `regex` with `target` (`last_message`, or `{source: file, path: ...}`) and `pattern`;
+    `match: count:N` for an exact number of matches.
+  - `tool_used` with `tool` and `input_match` (a regex over the call's input). `arm: with-only`
+    for a grader that only makes sense with the plugin, such as `skill-fired`.
+  - `llm` with `focus` (`last_message`, or a file) and `criteria`: a list of conditions that
+    must all hold, specific to this case's prompt.
+
+Gotchas found while building the cases:
+
+- `max: 0` on a `tool_used` grader needs `min: 0` next to it ("this tool was never called
+  with that input"); `max` alone is rejected.
+- A grader reads files and the transcript. It never re-runs a check: `deck-check-passed` only
+  reads the `deck-check.json` the agent's run left behind.
+- `--keep-temp` keeps each run's workspace, so you can look at what the agent built. The
+  eval tool seals it, so re-running a check inside it may fail.
+- A Chrome-based check cannot pass inside the eval sandbox on macOS (next section).
+- Count graders against what the baseline might build elsewhere: `no-deck-yet` once checked
+  one path only, and the baseline wrote its deck to another.
+
 ## Known limit: the deck check inside the eval sandbox
 
 `claude plugin eval` runs the agent's shell commands inside an OS sandbox, and on macOS that

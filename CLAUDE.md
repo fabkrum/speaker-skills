@@ -1,5 +1,7 @@
 # speaker-skills
 
+Writing or changing an eval case: `evals/README.md`, section "Writing a case".
+
 ## Agent skills
 
 ### Issue tracker
