@@ -70,7 +70,9 @@ from `talk-brief.md` into `<talk>/talk-brief.md`, show it, and let the speaker e
 node scripts/check-brief.mjs <talk>/talk-brief.md
 ```
 
-It prints the throughline, or lists what is missing and exits 1. **Do not go on without a
+It prints the throughline, or lists what is missing and exits 1. Exit 2 means it could not
+check: no brief at that path, or a file with none of the brief's fields; write the BRIEF block
+first. **Do not go on without a
 passing brief.** If the speaker cannot state a throughline in 15 words, that is the finding:
 help them cut until one sentence holds, or stop here. The build script refuses a talk folder
 whose brief fails, so a skipped gate shows up later anyway.

@@ -3,8 +3,9 @@
 //   node check-guide.mjs <guide folder or index.html> [--deck <deck.json> | --storyboard <storyboard.md>] [--json]
 // Without --deck or --storyboard it uses the deck named in the guide.json next to index.html.
 // Exit 0 when the guide passes, 1 when it fails, 2 when the check could not run (no browser,
-// nothing to compare the sections with). Writes guide-check.json next to index.html; eval
-// graders read that file.
+// no guide at that path, nothing to compare the sections with, an unreadable guide.json or deck,
+// or the check broke). Writes guide-check.json next to index.html; eval graders read that file.
+// A run that exits 2 removes the old guide-check.json first, so a stale "passed" never outlives it.
 //
 // It fails a guide when
 //   - it does not have exactly one section per storyboard slide, numbered and in the slides'
@@ -19,10 +20,10 @@
 //   - text reaches less than 4.5:1 against its background,
 //   - the page loads anything from the network (it is one self-contained file).
 
-import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync, writeFileSync, rmSync } from 'node:fs';
 import { join, resolve, dirname, relative } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
-import { launch, openPage, BrowserNotFound } from '../../html-slides/scripts/browser.mjs';
+import { launch, openPage } from '../../html-slides/scripts/browser.mjs';
 
 export const MIN_CONTRAST = 4.5;
 export const MIN_BODY_PX = 16;
@@ -31,17 +32,26 @@ const PHONE = { width: 390, height: 844 };
 // Thrown when there is nothing to compare the sections with: the check could not run.
 export class NoStoryboard extends Error {}
 
+const readJson = (path) => {
+  try {
+    return JSON.parse(readFileSync(path, 'utf8'));
+  } catch (e) {
+    throw new NoStoryboard(`cannot read ${path}: ${e.message}`);
+  }
+};
+
 // The slides the guide must follow: from a deck.json, a storyboard.md (its numbered lines), or
 // the deck named in the guide.json next to the guide.
 export function readSlides({ deck, storyboard, guideDir }) {
   if (!deck && !storyboard) {
     const guideJson = join(guideDir, 'guide.json');
-    const named = existsSync(guideJson) && JSON.parse(readFileSync(guideJson, 'utf8')).deck;
+    const named = existsSync(guideJson) && readJson(guideJson).deck;
     if (!named) throw new NoStoryboard('nothing to compare the sections with: pass --deck <deck.json> or --storyboard <storyboard.md>');
     deck = resolve(guideDir, named);
   }
   if (deck) {
-    const { slides } = JSON.parse(readFileSync(deck, 'utf8'));
+    const { slides } = readJson(deck);
+    if (!Array.isArray(slides)) throw new NoStoryboard(`${deck} has no "slides" list`);
     return slides.map((s) => ({ sentence: s.sentence ?? s.title ?? null, ai: s.ai ?? null }));
   }
   const lines = readFileSync(storyboard, 'utf8').split(/\r?\n/).filter((l) => /^ {0,3}\d+[.)]\s+\S/.test(l));
@@ -131,9 +141,13 @@ const INSPECT = String.raw`(async () => {
 
 const local = (url) => /^(file|data|blob|about):/.test(url);
 
+// The guide's index.html for a guide folder or the file itself; the report goes next to it.
+export const guideFile = (target) => (existsSync(target) && statSync(target).isDirectory() ? join(target, 'index.html') : target);
+
 export async function checkGuide(target, { deck, storyboard, browser } = {}) {
-  const html = statSync(target).isDirectory() ? join(target, 'index.html') : target;
-  if (!existsSync(html)) throw new Error(`${html} does not exist`);
+  const html = guideFile(target);
+  if (!existsSync(html)) throw new Error(`${html} does not exist; build the guide first`);
+  if (!/\.html?$/i.test(html)) throw new Error(`${html} is not an HTML file; pass the guide folder or its index.html`);
   const slides = readSlides({ deck, storyboard, guideDir: dirname(resolve(html)) });
   const own = !browser;
   browser ??= await launch();
@@ -229,17 +243,16 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     console.error('Usage: node check-guide.mjs <guide folder or index.html> [--deck deck.json | --storyboard storyboard.md] [--json]');
     process.exit(2);
   }
+  const report = join(dirname(resolve(guideFile(target))), 'guide-check.json');
+  rmSync(report, { force: true });
+  let result;
   try {
-    const report = await checkGuide(target, { deck, storyboard });
-    const html = report.guide;
-    writeFileSync(join(dirname(html), 'guide-check.json'), JSON.stringify({ ...report, guide: relative(dirname(html), html) }, null, 2) + '\n');
-    console.log(json ? JSON.stringify(report, null, 2) : formatReport(report));
-    process.exit(report.passed ? 0 : 1);
+    result = await checkGuide(target, { deck, storyboard });
   } catch (e) {
-    if (e instanceof BrowserNotFound || e instanceof NoStoryboard) {
-      console.error(`Guide check could not run: ${e.message}`);
-      process.exit(2);
-    }
-    throw e;
+    console.error(`Guide check could not run: ${e?.message ?? e}`);
+    process.exit(2);
   }
+  writeFileSync(report, JSON.stringify({ ...result, guide: relative(dirname(report), result.guide) }, null, 2) + '\n');
+  console.log(json ? JSON.stringify(result, null, 2) : formatReport(result));
+  process.exit(result.passed ? 0 : 1);
 }

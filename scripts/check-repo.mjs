@@ -10,14 +10,20 @@ import { join, relative, sep, resolve } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+// Every pattern is global: a line is scanned for every match, not only the first.
 const LEAKS = [
-  { pattern: /\/(?:Users|home)\/[^\s/]/, message: 'home-directory path' },
-  { pattern: /\b[A-Za-z]:\\Users\\/, message: 'home-directory path' },
-  { pattern: /(?<![\w-])fk:[a-z]/, message: 'private skill name' },
-  { pattern: /speed[\s-]?kit|baq(?:e)nd/i, message: 'employer name' },
-  { pattern: /\bPSA\b|Professional Speaking Associat(?:ion)/, message: 'private course material' },
-  { pattern: /[\w.+-]+@([\w-]+(?:\.[\w-]+)+)/, message: 'email address', allow: (m) => /(^|\.)example\.(com|org|net)$/i.test(m[1]) },
+  { pattern: /\/(?:Users|home)\/[^\s/]/g, message: 'home-directory path' },
+  { pattern: /\b[A-Za-z]:\\Users\\/g, message: 'home-directory path' },
+  { pattern: /(?<![\w.~-])~\/|\$\{?HOME\}?\//g, message: 'home-directory path' },
+  { pattern: /(?<![\w-])fk:[a-z]/g, message: 'private skill name' },
+  { pattern: /speed[\s_-]?kit|baq(?:e)nd/gi, message: 'employer name' },
+  { pattern: /\bPSA\b|Professional Speaking Associat(?:ion)/g, message: 'private course material' },
+  { pattern: /[\w.+-]+@([\w-]+(?:\.[\w-]+)+)/g, message: 'email address', allow: (m) => /(^|\.)example\.(com|org|net)$/i.test(m[1]) },
 ];
+
+// Skills must not name an agent's own tools: the spec's "ask the user", not a tool name, so the
+// instructions read the same in every agent. Only under skills/, where the instructions live.
+const AGENT_TOOL = /\b(?:Bash|Read|Write|Edit|Grep|Glob|WebFetch|WebSearch)(?:'s)?\s+tool\b/g;
 
 const PLUGIN_ROOT = /\$\{CLAUDE_PLUGIN_ROOT\}/;
 
@@ -48,11 +54,14 @@ function listFiles(root) {
 
 function scanLeaks(file, text) {
   const problems = [];
+  const instructions = file.startsWith('skills/') && file.endsWith('.md');
   text.split(/\r?\n/).forEach((line, i) => {
-    for (const leak of LEAKS) {
-      const m = line.match(leak.pattern);
-      if (m && !(leak.allow && leak.allow(m))) problems.push({ file: `${file}:${i + 1}`, message: leak.message });
-    }
+    const at = `${file}:${i + 1}`;
+    for (const leak of LEAKS)
+      for (const m of line.matchAll(leak.pattern)) if (!(leak.allow && leak.allow(m))) problems.push({ file: at, message: leak.message });
+    if (instructions)
+      for (const m of line.matchAll(AGENT_TOOL))
+        problems.push({ file: at, message: `names an agent tool ("${m[0].replace(/'s(?=\s)/, '')}"); say what to do, not which tool does it` });
   });
   return problems;
 }

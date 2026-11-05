@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // The deck's artefact check, in a real browser:
 //   node check-deck.mjs <deck folder or index.html> [--json]
-// Exit 0 when the deck passes, 1 when it fails, 2 when the check could not run (no browser).
-// Writes deck-check.json next to index.html; eval graders read that file.
+// Exit 0 when the deck passes, 1 when it fails, 2 when the check could not run (no browser, no
+// built deck at that path, or the check broke). Writes deck-check.json next to index.html; eval
+// graders read that file. A run that exits 2 removes the old deck-check.json first, so a stale
+// "passed" never outlives it.
 //
 // It fails a deck when
 //   - a slide's text reaches less than 4.5:1 against the pixels behind it, measured on a
@@ -15,10 +17,10 @@
 //   - the deck loads anything from the network (it must run offline),
 //   - a QR slide has no QR code.
 
-import { existsSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, statSync, writeFileSync, rmSync } from 'node:fs';
 import { join, resolve, dirname, relative } from 'node:path';
 import { pathToFileURL, fileURLToPath } from 'node:url';
-import { launch, openPage, BrowserNotFound } from './browser.mjs';
+import { launch, openPage } from './browser.mjs';
 
 export const MIN_CONTRAST = 4.5;
 const MIN_LABEL_PX = 16; // at a 1280 px wide slide, i.e. 24 px on a 1920 px slide
@@ -159,9 +161,13 @@ true`;
 
 const local = (url) => /^(file|data|blob|about):/.test(url);
 
+// The deck's index.html for a deck folder or the file itself; the report goes next to it.
+export const deckFile = (target) => (existsSync(target) && statSync(target).isDirectory() ? join(target, 'index.html') : target);
+
 export async function checkDeck(target, { browser } = {}) {
-  const html = statSync(target).isDirectory() ? join(target, 'index.html') : target;
-  if (!existsSync(html)) throw new Error(`${html} does not exist`);
+  const html = deckFile(target);
+  if (!existsSync(html)) throw new Error(`${html} does not exist; build the deck first`);
+  if (!/\.html?$/i.test(html)) throw new Error(`${html} is not an HTML file; pass the deck folder or its index.html`);
   const own = !browser;
   browser ??= await launch();
   const problems = [];
@@ -249,17 +255,16 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     console.error('Usage: node check-deck.mjs <deck folder or index.html> [--json]');
     process.exit(2);
   }
+  const report = join(dirname(resolve(deckFile(target))), 'deck-check.json');
+  rmSync(report, { force: true });
+  let result;
   try {
-    const report = await checkDeck(target);
-    const html = report.deck;
-    writeFileSync(join(dirname(html), 'deck-check.json'), JSON.stringify({ ...report, deck: relative(dirname(html), html) }, null, 2) + '\n');
-    console.log(json ? JSON.stringify(report, null, 2) : formatReport(report));
-    process.exit(report.passed ? 0 : 1);
+    result = await checkDeck(target);
   } catch (e) {
-    if (e instanceof BrowserNotFound) {
-      console.error(`Deck check could not run: ${e.message}`);
-      process.exit(2);
-    }
-    throw e;
+    console.error(`Deck check could not run: ${e?.message ?? e}`);
+    process.exit(2);
   }
+  writeFileSync(report, JSON.stringify({ ...result, deck: relative(dirname(report), result.deck) }, null, 2) + '\n');
+  console.log(json ? JSON.stringify(result, null, 2) : formatReport(result));
+  process.exit(result.passed ? 0 : 1);
 }

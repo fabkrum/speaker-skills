@@ -3,6 +3,8 @@
 //   node check-brief.mjs <talk folder>/talk-brief.md
 // The brief is the BRIEF block from references/talk-brief.md, one `Key: value` line per field.
 // Exit 0 prints the throughline; exit 1 lists what is missing. No throughline, no build.
+// Exit 2 when it could not check: no file at that path, or a file without a single brief field
+// (a storyboard or notes handed over by mistake).
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -58,11 +60,15 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   let text;
   try {
     text = readFileSync(file, 'utf8');
-  } catch {
-    console.error(`No brief at ${file}. Run the brief interview first.`);
-    process.exit(1);
+  } catch (e) {
+    console.error(`Brief check could not run: no brief at ${file} (${e.code ?? e.message}). Run the brief interview first.`);
+    process.exit(2);
   }
   const brief = readBrief(text);
+  if (!Object.keys(brief).length) {
+    console.error(`Brief check could not run: ${file} has none of the brief's fields (${FIELDS.join(', ')}); it is not a talk brief. Write the BRIEF block from references/talk-brief.md.`);
+    process.exit(2);
+  }
   const problems = checkBrief(brief);
   if (problems.length) {
     console.error(`Brief not ready, nothing gets built yet:\n${problems.map((p) => `- ${p}`).join('\n')}`);

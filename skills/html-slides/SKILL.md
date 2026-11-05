@@ -99,12 +99,12 @@ stays put.
    re-run until it prints `Deck check passed`. For contrast: raise `dim`, or move the panel to a
    calmer part of the image.
 
-   Exit code 2 means the check could not run, which is not a pass. Either no browser was found
-   (tell the speaker to install Google Chrome or set `CHROME_PATH`), or the browser could not
-   start because your shell runs in a sandbox that blocks it. Then run the same command again
-   outside the sandbox if your tool lets you (in Claude Code, the Bash tool's sandbox override;
-   the speaker approves it), or give the speaker the one command to run themselves. Never report
-   an unchecked deck as checked.
+   Exit code 2 means the check could not run, which is not a pass, and it removes any old
+   `deck-check.json`. Either there is no built deck at that path (build it first), no browser
+   was found (tell the speaker to install Google Chrome or set `CHROME_PATH`), or the browser
+   could not start because your shell runs in a sandbox that blocks it. Then run the same command
+   again outside the sandbox if your agent can do that with the speaker's approval, or give the
+   speaker the one command to run themselves. Never report an unchecked deck as checked.
 
 6. **Look at it.** The check cannot judge whether a panel covers the image's subject or whether
    the image carries the idea. Open `index.html`, step through every slide, and fix what reads

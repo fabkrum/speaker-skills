@@ -47,7 +47,11 @@ const leaks = {
   'a Linux home path': ['/ho', 'me/someone/talks'].join(''),
   'a Windows home path': ['C:\\Us', 'ers\\someone'].join(''),
   'a private skill name': ['f', 'k:writing'].join(''),
+  'a home path with a tilde': ['~', '/talks/deck'].join(''),
+  'a home path with $HOME': ['$HO', 'ME/talks/deck'].join(''),
+  'a home path with ${HOME}': ['${HO', 'ME}/talks'].join(''),
   'an employer name': ['Speed', ' Kit'].join(''),
+  'an employer name with an underscore': ['Speed', '_Kit'].join(''),
   'another employer name': ['Baq', 'end'].join(''),
   'an email address': ['someone', '@', 'mail.test'].join(''),
   'private course material': ['P', 'SA manual'].join(''),
@@ -65,6 +69,36 @@ for (const [label, leak] of Object.entries(leaks)) {
 test('allows example email addresses', () => {
   const root = fixture({ 'skills/demo/SKILL.md': goodSkill, 'a.md': `${['you', '@', 'example.com'].join('')}\n` });
   assert.deepEqual(messages(root), []);
+});
+
+test('flags every email address on a line, not only the first', () => {
+  const line = `${['you', '@', 'example.com'].join('')} or ${['someone', '@', 'mail.test'].join('')} or ${['other', '@', 'mail.test'].join('')}\n`;
+  const found = messages(fixture({ 'skills/demo/SKILL.md': goodSkill, 'a.md': line }));
+  assert.deepEqual(found, ['a.md:1: email address', 'a.md:1: email address']);
+});
+
+// Tool names are assembled at runtime for the same reason as the leaks above.
+const named = (tool) => [tool, ' tool'].join('');
+for (const tool of ['Bash', 'Read', 'Write', 'Edit', 'Grep', 'Glob', 'WebFetch', 'WebSearch']) {
+  test(`flags a skill that names the ${tool} agent tool`, () => {
+    const skill = `${goodSkill}\nRun it again with the ${named(tool)}'s override.\n`;
+    const found = messages(fixture({ 'skills/demo/SKILL.md': skill }));
+    assert.deepEqual(found, [`skills/demo/SKILL.md:8: names an agent tool ("${named(tool)}"); say what to do, not which tool does it`]);
+  });
+}
+
+test('flags a named agent tool in a skill reference too, but not outside skills', () => {
+  const found = messages(fixture({
+    'skills/demo/SKILL.md': goodSkill,
+    'skills/demo/references/a.md': `Use the ${named('WebFetch')}.\n`,
+    'docs/notes.md': `Use the ${named('WebFetch')}.\n`,
+  }));
+  assert.deepEqual(found, [`skills/demo/references/a.md:1: names an agent tool ("${named('WebFetch')}"); say what to do, not which tool does it`]);
+});
+
+test('does not flag tools named by what they do', () => {
+  const skill = `${goodSkill}\nUse whatever image tool you have. Read the tool's output. Edit tools vary.\n`;
+  assert.deepEqual(messages(fixture({ 'skills/demo/SKILL.md': skill })), []);
 });
 
 test('flags a description over 1024 characters', () => {

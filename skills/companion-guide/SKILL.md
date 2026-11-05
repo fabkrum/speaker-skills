@@ -157,11 +157,13 @@ It prints one line per problem and writes `guide-check.json` next to `index.html
 cause in `guide.json`, the deck or the style file, build again and re-check until it prints
 `Guide check passed`.
 
-Exit code 2 means the check could not run, which is not a pass: no browser was found (tell the
+Exit code 2 means the check could not run, which is not a pass, and it removes any old
+`guide-check.json`: no guide at that path, no browser was found (tell the
 speaker to install Google Chrome or set `CHROME_PATH`), the browser could not start because
 your shell runs in a sandbox that blocks it (run the same command outside the sandbox if your
 tool lets you, or give the speaker the one command to run), or there was no deck or storyboard
-to compare with. Never report an unchecked guide as checked.
+to compare with (or `guide.json` or the deck could not be read). Never report an unchecked
+guide as checked.
 
 Then **read it as someone who missed the talk.** Open `index.html` and read every section with
 only the brief's audience in mind: could they follow it, and would they know exactly what to
