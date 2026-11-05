@@ -57,7 +57,8 @@ Gotchas found while building the cases:
 - A grader reads files and the transcript. It never re-runs a check: `deck-check-passed` only
   reads the `deck-check.json` the agent's run left behind.
 - `--keep-temp` keeps each run's workspace, so you can look at what the agent built. The
-  eval tool seals it, so re-running a check inside it may fail.
+  eval tool seals it, so re-running a check inside it exits 2 (could not run): it cannot
+  replace the report there. Copy the folder out first.
 - A Chrome-based check cannot pass inside the eval sandbox on macOS (next section).
 - Count graders against what the baseline might build elsewhere: `no-deck-yet` once checked
   one path only, and the baseline wrote its deck to another.

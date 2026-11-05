@@ -255,16 +255,28 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     console.error('Usage: node check-deck.mjs <deck folder or index.html> [--json]');
     process.exit(2);
   }
-  const report = join(dirname(resolve(deckFile(target))), 'deck-check.json');
-  rmSync(report, { force: true });
+  // Removing the old report and writing the new one sit inside the same handler as the check:
+  // a folder that cannot be written (a sealed eval workspace, a report path that is a folder)
+  // means the check could not run, exit 2, never an uncaught throw that exits 1.
+  let report;
   let result;
   try {
+    report = join(dirname(resolve(deckFile(target))), 'deck-check.json');
+    rmSync(report, { force: true });
     result = await checkDeck(target);
   } catch (e) {
     console.error(`Deck check could not run: ${e?.message ?? e}`);
     process.exit(2);
   }
-  writeFileSync(report, JSON.stringify({ ...result, deck: relative(dirname(report), result.deck) }, null, 2) + '\n');
+  try {
+    writeFileSync(report, JSON.stringify({ ...result, deck: relative(dirname(report), result.deck) }, null, 2) + '\n');
+  } catch (e) {
+    try {
+      rmSync(report, { force: true }); // a half-written report must not read as a result
+    } catch {}
+    console.error(`Deck check could not run: it checked the deck but could not write ${report}: ${e?.message ?? e}`);
+    process.exit(2);
+  }
   console.log(json ? JSON.stringify(result, null, 2) : formatReport(result));
   process.exit(result.passed ? 0 : 1);
 }

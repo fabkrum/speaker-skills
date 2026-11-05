@@ -16,7 +16,8 @@ each one to them:
 
 A check that writes a report (`deck-check.json`, `guide-check.json`) removes the old one before
 it starts and writes the new one only when it finishes. An old "passed" must never outlive a
-run that did not check anything. A new check script needs a case in that test.
+run that did not check anything. When it cannot remove the old report or write the new one (a
+read-only folder), that is exit 2 too. A new check script needs a case in that test.
 
 ## A failed run leaves nothing behind, or names what it left
 
