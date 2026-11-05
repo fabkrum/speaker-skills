@@ -214,6 +214,9 @@ test('the keyboard drives the deck: arrows, Home, End, and B for black', async (
   assert.deepEqual(await state(), { index: 1, blacked: false, hash: '#2', shown: 1 });
 
   await page.goto(pathToFileURL(join(dir, 'index.html')).href + '#3');
+  // Only the hash changes, so this is no reload: hashchange fires after goto returns.
+  const until = Date.now() + 2000;
+  while ((await state()).index !== 2 && Date.now() < until) await new Promise((r) => setTimeout(r, 50));
   assert.equal((await state()).index, 2, 'a reload did not keep the slide');
 });
 
