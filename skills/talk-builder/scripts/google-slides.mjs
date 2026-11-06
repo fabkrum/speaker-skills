@@ -7,8 +7,9 @@
 // folder with the presentation and its images, and exports every slide as a PNG into
 // <deck folder>/google-slides/ to look at. Exit 3 means Google Slides is not available here
 // (no gws, or no login); the HTML deck is built and the message says so.
-// Exit 1 after something exists on Drive: the run deletes its folder again, or names what is
-// left there and how to remove it.
+// Exit 1 after something exists on Drive: the run moves its folder to the Drive bin (never
+// deletes it for good, so a finished deck can be restored), or names what is left and how to
+// remove it.
 //
 // Equivalent, not identical: Google Slides has no blur behind the panel, so the panel gets at
 // least the opacity that keeps the sentence at 4.5:1 over any pixel of the picture.
@@ -420,9 +421,9 @@ export async function buildGoogleSlides(deckJson, { stylePath, gws = gwsCli(), f
   if (wrong.length)
     throw new SlidesError(`Google Slides takes PNG, JPEG or GIF images, not ${wrong.join(', ')}. Save those as PNG, point deck.json at them and run this again.`);
 
-  // From here on, things exist on the speaker's Drive. A run that fails deletes the folder,
-  // and with it the presentation and every uploaded picture; if even that fails, the error
-  // names what is left there and how to remove it.
+  // From here on, things exist on the speaker's Drive. A run that fails moves the folder to
+  // the bin, and with it the presentation and every uploaded picture; if even that fails, the
+  // error names what is left there and how to remove it.
   const folder = gws(['drive', 'files', 'create', '--json', p({ name: `${deck.title} (Google Slides)`, mimeType: FOLDER })]).id;
   const shared = [];
   const unrevoked = [];
@@ -519,18 +520,20 @@ async function exportThumbnails({ deck, out, gws, fetch, presentationId }) {
   return exported;
 }
 
-// A failed run deletes its Drive folder: deleting a folder deletes the presentation and the
-// pictures in it, so nothing stays shared either. The error says that it did, or, when the
-// delete fails too, names everything left on Drive and how to remove it.
+// A failed run moves its Drive folder to the bin, with the presentation and the pictures in it.
+// The bin, not a delete for good (Fabian, 2026-11-06): a run that built the whole deck and
+// failed only on a preview picture leaves a deck the speaker can restore for 30 days. The error
+// says so, or, when the move fails too, names everything left on Drive and how to remove it.
 export function undo(error, { gws, folder, presentationId, unrevoked = [] }) {
   const lines = [error.message];
   if (unrevoked.length)
     lines.push(`The link sharing could not be switched off on: ${unrevoked.map((s) => `${s.name} (${fileUrl(s.fileId)})`).join(', ')}.`);
   try {
-    gws(['drive', 'files', 'delete', '--params', p({ fileId: folder })]);
-    lines.push(`Nothing is left on your Google Drive: the folder this run created was deleted, with ${presentationId ? 'the presentation and ' : ''}every picture in it.`);
+    gws(['drive', 'files', 'update', '--params', p({ fileId: folder }), '--json', p({ trashed: true })]);
+    lines.push(`The folder this run created is in your Google Drive bin, with ${presentationId ? 'the presentation and ' : ''}every picture in it: ${folderUrl(folder)}. Run this again to build the deck anew, or restore it from the bin within 30 days.`);
+    for (const s of unrevoked) lines.push(`- still readable by anyone with its link until you empty the bin: ${s.name}, ${fileUrl(s.fileId)}`);
   } catch (e) {
-    lines.push(`The folder this run created could not be deleted (${oneLine(e)}). Left on your Google Drive:`);
+    lines.push(`The folder this run created could not be moved to the bin (${oneLine(e)}). Left on your Google Drive:`);
     lines.push(`- the folder: ${folderUrl(folder)}`);
     if (presentationId) lines.push(`- the presentation, in that folder: ${presentationUrl(presentationId)}`);
     lines.push('- the pictures uploaded into that folder');

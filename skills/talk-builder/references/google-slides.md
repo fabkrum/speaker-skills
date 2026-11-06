@@ -147,8 +147,9 @@ is lost on the next build.
 
 - `0`: built. The script prints the presentation's address.
 - `1`: a gate failed, or Google refused a request. The message says which. A run that fails
-  after it created the Drive folder deletes that folder again, with the presentation and the
-  pictures in it, and says so. If even that delete fails, the message lists what is left on
+  after it created the Drive folder moves that folder to your Drive bin, with the presentation
+  and the pictures in it, and says so. It never deletes anything for good: a finished deck can
+  be restored from the bin for 30 days. If even that move fails, the message lists what is left on
   Drive (the folder, the presentation, any picture still readable by link) with its address,
   and how to move the folder to the bin.
 - `3`: Google Slides is not available here: `gws` is missing or not logged in. The HTML deck is

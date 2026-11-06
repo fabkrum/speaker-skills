@@ -251,5 +251,6 @@ GIF.
   want Google Slides next time, walk them through `references/google-slides.md` in this skill's
   folder, one command at a time.
 - **Exit 1:** a gate failed or Google refused a request; the message says which. A failed run
-  deletes the Drive folder it created. If the message says something is left on Drive, pass
-  that list and the removal step on to the speaker word for word.
+  moves the Drive folder it created to the speaker's Drive bin, where it can be restored for 30
+  days; say so. If the message says something is left on Drive, or is still readable by link,
+  pass that list and the removal step on to the speaker word for word.
