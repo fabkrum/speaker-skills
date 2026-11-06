@@ -1,5 +1,5 @@
 // talk-builder: the brief gate, the storyboard critique gate, the style file that is written once,
-// and the deck it builds, graded by the html-slides deck check in a real browser.
+// and the deck it builds. Needs a Chromium-based browser (the deck check runs in it).
 
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';

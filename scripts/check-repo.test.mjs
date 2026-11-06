@@ -168,3 +168,19 @@ test('the command exits 0 on a clean repo', () => {
   const run = spawnSync(process.execPath, [script, root], { encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
 });
+
+// Retro 2026-11-06, finding 4: talk-builder.test.mjs drives a browser through the deck check but
+// did not say so, and two nights' sessions ran it in the sandbox, where it fails without a reason.
+test('flags a test that drives a browser but does not say it needs one', () => {
+  const uses = "import { checkDeck } from '../skills/html-slides/scripts/check-deck.mjs';\n";
+  const found = messages(fixture({
+    'test/quiet.test.mjs': `// the deck it builds\n\n${uses}`,
+    'test/said.test.mjs': `// the deck it builds.\n// Needs a Chromium-based browser (the deck check runs in it).\n\n${uses}`,
+    'test/late.test.mjs': `// one\n// two\n// three\n// Needs a Chromium-based browser\n${uses}`,
+    'test/plain.test.mjs': "import { checkBrief } from '../skills/talk-builder/scripts/check-brief.mjs';\n",
+  }));
+  assert.deepEqual(found.sort(), [
+    'test/late.test.mjs: drives a browser (it imports check-deck.mjs); say "Needs a Chromium-based browser" in its first 3 lines, so a session runs it outside the sandbox',
+    'test/quiet.test.mjs: drives a browser (it imports check-deck.mjs); say "Needs a Chromium-based browser" in its first 3 lines, so a session runs it outside the sandbox',
+  ]);
+});

@@ -123,6 +123,18 @@ function checkSkill(root, dir) {
   return problems;
 }
 
+// A test that drives a browser says so in its first lines, so a session reads it before running
+// the file inside a sandbox that blocks the browser (retro 2026-11-06: talk-builder.test.mjs did
+// not, and two nights' sessions ran it there and saw it fail with no reason).
+const BROWSER_MODULES = /from\s+['"][^'"]*\/(browser|check-deck|check-guide)\.mjs['"]/;
+
+function checkBrowserTest(file, text) {
+  if (!/^test\/.*\.test\.mjs$/.test(file)) return [];
+  const uses = text.match(BROWSER_MODULES);
+  if (!uses || text.split('\n').slice(0, 3).join('\n').includes('Needs a Chromium-based browser')) return [];
+  return [{ file, message: `drives a browser (it imports ${uses[1]}.mjs); say "Needs a Chromium-based browser" in its first 3 lines, so a session runs it outside the sandbox` }];
+}
+
 export function checkRepo(root) {
   const problems = [];
   const files = listFiles(root);
@@ -131,6 +143,7 @@ export function checkRepo(root) {
     if (buffer.includes(0)) continue; // binary
     const text = buffer.toString('utf8');
     problems.push(...scanLeaks(file, text));
+    problems.push(...checkBrowserTest(file, text));
     if (file.startsWith('skills/') && PLUGIN_ROOT.test(text))
       problems.push({ file, message: 'plugin-root variable; skills must not depend on Claude Code plugin paths' });
   }
