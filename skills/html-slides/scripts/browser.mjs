@@ -156,6 +156,21 @@ export async function openPage(browser, { width, height, timeoutMs = 30000 }) {
   const requests = [];
   browser.on('Network.requestWillBeSent', (p, sid) => sid === sessionId && requests.push(p.request.url));
 
+  // Runs start(), and when it returns true waits for the page's load event.
+  const untilLoaded = async (message, start) => {
+    let timer;
+    const loaded = new Promise((resolve, reject) => {
+      browser.on('Page.loadEventFired', (_, sid) => sid === sessionId && resolve());
+      timer = setTimeout(() => reject(new Error(`${message} in ${timeoutMs} ms`)), timeoutMs);
+    });
+    try {
+      if (await start()) await loaded;
+    } finally {
+      clearTimeout(timer);
+      loaded.catch(() => {});
+    }
+  };
+
   const page = {
     send,
     requests,
@@ -163,19 +178,18 @@ export async function openPage(browser, { width, height, timeoutMs = 30000 }) {
       await send('Emulation.setDeviceMetricsOverride', { width: w, height: h, deviceScaleFactor: 1, mobile: false });
     },
     async goto(url) {
-      let timer;
-      const loaded = new Promise((resolve, reject) => {
-        browser.on('Page.loadEventFired', (_, sid) => sid === sessionId && resolve());
-        timer = setTimeout(() => reject(new Error(`${url} did not finish loading in ${timeoutMs} ms`)), timeoutMs);
-      });
-      try {
+      await untilLoaded(`${url} did not finish loading`, async () => {
         const { errorText, loaderId } = await send('Page.navigate', { url });
         if (errorText) throw new Error(`Could not open ${url}: ${errorText}`);
-        if (loaderId) await loaded; // no loaderId: only the #fragment changed, nothing loads
-      } finally {
-        clearTimeout(timer);
-        loaded.catch(() => {});
-      }
+        return Boolean(loaderId); // no loaderId: only the #fragment changed, nothing loads
+      });
+    },
+    // A real reload, as the speaker's F5: the page loads again from the file, the address stays.
+    async reload() {
+      await untilLoaded('The page did not finish reloading', async () => {
+        await send('Page.reload');
+        return true;
+      });
     },
     // Evaluates an expression (or an async function body given as a string) and returns its value.
     async evaluate(expression) {

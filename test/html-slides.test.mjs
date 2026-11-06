@@ -54,6 +54,20 @@ const edit = (dir, from, to) => {
   writeFileSync(file, html.replace(from, to));
 };
 
+// Waits in the page until the expression is true, as a waitForFunction would, and gives up after
+// 5 s. No assertion here: the caller's own assertion names what went wrong.
+function waitFor(page, expression, timeoutMs = 5000) {
+  return page.evaluate(`new Promise((resolve) => {
+    const until = performance.now() + ${timeoutMs};
+    (function poll() {
+      let ok = false;
+      try { ok = Boolean(${expression}); } catch {}
+      if (ok || performance.now() > until) resolve(ok);
+      else setTimeout(poll, 20);
+    })();
+  })`);
+}
+
 const checks = (report) => report.problems.map((p) => p.check);
 
 const photo = { type: 'image', image: 'images/dark.svg', alt: 'A dark room', sentence: 'The room goes quiet.', ai: 'photo' };
@@ -215,9 +229,35 @@ test('the keyboard drives the deck: arrows, Home, End, and B for black', async (
 
   await page.goto(pathToFileURL(join(dir, 'index.html')).href + '#3');
   // Only the hash changes, so this is no reload: hashchange fires after goto returns.
-  const until = Date.now() + 2000;
-  while ((await state()).index !== 2 && Date.now() < until) await new Promise((r) => setTimeout(r, 50));
-  assert.equal((await state()).index, 2, 'a reload did not keep the slide');
+  // The reload itself is the next test.
+  await waitFor(page, 'deck.index === 2');
+  assert.equal((await state()).index, 2, 'changing the address to #3 did not move the deck to slide 3');
+});
+
+test('a reload keeps the slide the speaker was on', async () => {
+  const dir = makeDeck([
+    { type: 'text', sentence: 'One.' },
+    { type: 'text', sentence: 'Two.' },
+    { type: 'text', sentence: 'Three.' },
+    { type: 'text', sentence: 'Four.' },
+  ]);
+  const page = await openPage(browser, { width: 1280, height: 720 });
+  await page.goto(pathToFileURL(join(dir, 'index.html')).href);
+  const state = () => page.evaluate('({ index: deck.index, hash: location.hash, shown: document.querySelectorAll(".slide.is-current").length, same: window.beforeReload === true })');
+
+  await page.key('ArrowRight', 'ArrowRight', 39);
+  await page.key('ArrowRight', 'ArrowRight', 39);
+  // Marks this document: a real reload builds a new one without the mark, a hash change keeps it.
+  await page.evaluate('window.beforeReload = true');
+  assert.deepEqual(await state(), { index: 2, hash: '#3', shown: 1, same: true });
+
+  await page.reload();
+  await waitFor(page, 'window.deck !== undefined && deck.index === 2');
+  assert.deepEqual(
+    await state(),
+    { index: 2, hash: '#3', shown: 1, same: false },
+    'after a reload the deck is not on slide 3 (same: true means the page never reloaded)',
+  );
 });
 
 test('the builder escapes text and keeps notes off the screen', () => {
