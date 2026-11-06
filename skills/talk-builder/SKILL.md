@@ -250,4 +250,6 @@ GIF.
   html-slides as in gate 5 and hand it over. Do not install anything for them unasked. If they
   want Google Slides next time, walk them through `references/google-slides.md` in this skill's
   folder, one command at a time.
-- **Exit 1:** a gate failed or Google refused a request; the message says which.
+- **Exit 1:** a gate failed or Google refused a request; the message says which. A failed run
+  deletes the Drive folder it created. If the message says something is left on Drive, pass
+  that list and the removal step on to the speaker word for word.

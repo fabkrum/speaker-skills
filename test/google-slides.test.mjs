@@ -50,7 +50,7 @@ function exampleTalk(patch = (deck) => deck) {
 }
 
 // A stand-in for gws that answers like Google would and records every call.
-function fakeGws({ status = { has_refresh_token: true, scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/presentations'] }, failBatch = false } = {}) {
+function fakeGws({ status = { has_refresh_token: true, scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/presentations'] }, failBatch = false, failRevoke = false, failDelete = false, failThumb = false } = {}) {
   const calls = [];
   let files = 0;
   let created = [];
@@ -61,7 +61,14 @@ function fakeGws({ status = { has_refresh_token: true, scopes: ['https://www.goo
     if (key === 'auth status') return status;
     if (key === 'drive files create') return { id: `file${++files}` };
     if (key === 'drive permissions create') return { id: `perm-${json('--params').fileId}` };
-    if (key === 'drive permissions delete') return {};
+    if (key === 'drive permissions delete') {
+      if (failRevoke) throw new SlidesError('gws drive permissions delete failed: backend error');
+      return {};
+    }
+    if (key === 'drive files delete') {
+      if (failDelete) throw new SlidesError('gws drive files delete failed: network unreachable');
+      return {};
+    }
     if (key === 'slides presentations get')
       return {
         pageSize: { width: { magnitude: 9144000 }, height: { magnitude: 5143500 } },
@@ -78,7 +85,7 @@ function fakeGws({ status = { has_refresh_token: true, scopes: ['https://www.goo
     if (key === 'slides presentations pages getThumbnail') return { contentUrl: `https://example.com/thumb/${json('--params').pageObjectId}` };
     throw new Error(`unexpected gws call: ${args.join(' ')}`);
   };
-  const fetch = async () => ({ ok: true, status: 200, arrayBuffer: async () => PNG });
+  const fetch = async () => (failThumb ? { ok: false, status: 500 } : { ok: true, status: 200, arrayBuffer: async () => PNG });
   const batches = () => calls.filter((a) => a.includes('batchUpdate')).map((a) => JSON.parse(a[a.indexOf('--json') + 1]).requests);
   return { gws, fetch, calls, batches };
 }
@@ -232,13 +239,73 @@ test('the talk is built as Google Slides through gws, with the HTML deck next to
   assert.deepEqual(readdirSync(join(slides, OUT_DIR)), Array.from({ length: 7 }, (_, i) => `slide-0${i + 1}.png`));
 });
 
-test('a failed build still takes the link sharing off every uploaded picture', async () => {
-  const { deckJson } = exampleTalk();
+const deleted = (calls) => calls.filter((a) => a[0] === 'drive' && a[1] === 'files' && a[2] === 'delete').map((a) => JSON.parse(a[a.indexOf('--params') + 1]).fileId);
+
+test('a failed build takes the link sharing off every picture and deletes its Drive folder', async () => {
+  const { deckJson, slides } = exampleTalk();
   const { gws, fetch, calls } = fakeGws({ failBatch: true });
-  await assert.rejects(buildGoogleSlides(deckJson, { gws, fetch }), SlidesError);
+  await assert.rejects(buildGoogleSlides(deckJson, { gws, fetch }), (e) => e instanceof SlidesError && /invalid request/.test(e.message) && /Nothing is left on your Google Drive/.test(e.message));
   const shared = calls.filter((a) => a[1] === 'permissions' && a[2] === 'create').length;
   assert.ok(shared > 0);
   assert.equal(calls.filter((a) => a[1] === 'permissions' && a[2] === 'delete').length, shared);
+  // The folder is the first file created; deleting it deletes the presentation and the pictures.
+  assert.deepEqual(deleted(calls), ['file1']);
+  assert.ok(!existsSync(join(slides, RECORD_FILE)));
+});
+
+test('a failed thumbnail download deletes the Drive folder and the half-saved pictures', async () => {
+  const { deckJson, slides } = exampleTalk();
+  const { gws, fetch, calls } = fakeGws({ failThumb: true });
+  await assert.rejects(buildGoogleSlides(deckJson, { gws, fetch }), (e) => /picture of slide 1 \(500\)/.test(e.message) && /Nothing is left/.test(e.message));
+  assert.deepEqual(deleted(calls), ['file1']);
+  assert.ok(!existsSync(join(slides, OUT_DIR)));
+  assert.ok(!existsSync(join(slides, RECORD_FILE)));
+});
+
+test('sharing that cannot be switched off fails the run and is named, not swallowed', async () => {
+  const { deckJson, slides } = exampleTalk();
+  const { gws, fetch, calls } = fakeGws({ failRevoke: true });
+  await assert.rejects(buildGoogleSlides(deckJson, { gws, fetch }), (e) => /link sharing could not be switched off/.test(e.message) && /wince\.png/.test(e.message) && /Nothing is left/.test(e.message));
+  assert.deepEqual(deleted(calls), ['file1']);
+  assert.ok(!existsSync(join(slides, RECORD_FILE)));
+});
+
+test('when the folder cannot be deleted either, the error names everything left on Drive and how to remove it', async () => {
+  const { deckJson } = exampleTalk();
+  const { gws, fetch } = fakeGws({ failBatch: true, failRevoke: true, failDelete: true });
+  const error = await buildGoogleSlides(deckJson, { gws, fetch }).then(() => assert.fail('built'), (e) => e);
+  assert.ok(error instanceof SlidesError);
+  assert.match(error.message, /invalid request/);
+  assert.match(error.message, /could not be deleted \(gws drive files delete failed: network unreachable\)/);
+  assert.match(error.message, /the folder: https:\/\/drive\.google\.com\/drive\/folders\/file1/);
+  assert.match(error.message, /the presentation, in that folder: https:\/\/docs\.google\.com\/presentation\/d\/file2\/edit/);
+  assert.match(error.message, /still readable by anyone with its link: wince\.png, https:\/\/drive\.google\.com\/file\/d\/file3\/view/);
+  assert.match(error.message, /Move to bin/);
+});
+
+test('the command line prints what a failed run left on Drive and exits 1', () => {
+  const { deckJson } = exampleTalk();
+  const bin = tmp();
+  // A stand-in gws on the PATH: logged in, creates files, refuses the slides and the folder delete.
+  const gwsPath = join(bin, 'gws');
+  writeFileSync(gwsPath, `#!/usr/bin/env node
+const a = process.argv.slice(2), k = a.slice(0, 3).join(' ');
+const fs = require('fs'), n = __dirname + '/n';
+const next = () => { const i = (fs.existsSync(n) ? +fs.readFileSync(n, 'utf8') : 0) + 1; fs.writeFileSync(n, String(i)); return 'file' + i; };
+if (k.startsWith('auth status')) console.log(JSON.stringify({ has_refresh_token: true, scopes: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/presentations'] }));
+else if (k === 'drive files create') console.log(JSON.stringify({ id: next() }));
+else if (k === 'drive permissions create') console.log(JSON.stringify({ id: 'perm' }));
+else if (k === 'drive permissions delete') console.log('{}');
+else if (k === 'slides presentations get') console.log(JSON.stringify({ pageSize: { width: { magnitude: 9144000 }, height: { magnitude: 5143500 } }, slides: [{ objectId: 'p' }] }));
+else { console.error('refused: ' + k); process.exitCode = 1; }
+`, { mode: 0o755 });
+  const run = spawnSync(process.execPath, [join(skill, 'scripts', 'google-slides.mjs'), deckJson], { encoding: 'utf8', env: { ...process.env, GWS_PATH: gwsPath } });
+  assert.equal(run.status, 1, run.stderr);
+  assert.match(run.stderr, /Google Slides not built: gws slides presentations batchUpdate --params --json (failed|was stopped)/);
+  assert.match(run.stderr, /drive\/folders\/file1/);
+  assert.match(run.stderr, /presentation\/d\/file2\/edit/);
+  assert.match(run.stderr, /could not be deleted \(gws drive files delete --params failed: refused: drive files delete\)/);
+  assert.match(run.stderr, /Move to bin/);
 });
 
 test('images Google Slides cannot take are refused before anything is uploaded', async () => {

@@ -146,7 +146,11 @@ is lost on the next build.
 ### Exit codes
 
 - `0`: built. The script prints the presentation's address.
-- `1`: a gate failed, or Google refused a request. The message says which.
+- `1`: a gate failed, or Google refused a request. The message says which. A run that fails
+  after it created the Drive folder deletes that folder again, with the presentation and the
+  pictures in it, and says so. If even that delete fails, the message lists what is left on
+  Drive (the folder, the presentation, any picture still readable by link) with its address,
+  and how to move the folder to the bin.
 - `3`: Google Slides is not available here: `gws` is missing or not logged in. The HTML deck is
   built anyway. Offer it to the speaker, and this setup for next time.
 - On Windows, if `gws` is installed but not found, set `GWS_PATH` to the full path of

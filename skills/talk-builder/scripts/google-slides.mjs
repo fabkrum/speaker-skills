@@ -7,6 +7,8 @@
 // folder with the presentation and its images, and exports every slide as a PNG into
 // <deck folder>/google-slides/ to look at. Exit 3 means Google Slides is not available here
 // (no gws, or no login); the HTML deck is built and the message says so.
+// Exit 1 after something exists on Drive: the run deletes its folder again, or names what is
+// left there and how to remove it.
 //
 // Equivalent, not identical: Google Slides has no blur behind the panel, so the panel gets at
 // least the opacity that keeps the sentence at 4.5:1 over any pixel of the picture.
@@ -372,9 +374,11 @@ export function gwsCli(command = process.env.GWS_PATH || 'gws') {
     if (run.error?.code === 'ENOENT') throw new SlidesUnavailable(NO_CLI);
     if (run.error) throw new SlidesError(`gws could not run: ${run.error.message}`);
     const out = run.stdout.trim();
+    const name = `gws ${args.filter((a) => !a.startsWith('{')).join(' ')}`;
+    if (run.signal) throw new SlidesError(`${name} was stopped (${run.signal})`);
     if (run.status !== 0) {
       const why = (run.stderr.trim() || out).split('\n').slice(-6).join('\n');
-      throw new SlidesError(`gws ${args.filter((a) => !a.startsWith('{')).join(' ')} failed:\n${why}`);
+      throw new SlidesError(`${name} failed:\n${why}`);
     }
     const start = out.search(/[{[]/);
     return start === -1 ? {} : JSON.parse(out.slice(start));
@@ -400,6 +404,7 @@ export function checkGws(gws) {
 const FOLDER = 'application/vnd.google-apps.folder';
 const PRESENTATION = 'application/vnd.google-apps.presentation';
 const p = (o) => JSON.stringify(o);
+const oneLine = (e) => e.message.replace(/\s*\n\s*/g, ' ').trim();
 
 export async function buildGoogleSlides(deckJson, { stylePath, gws = gwsCli(), fetch = globalThis.fetch, thumbnails = true } = {}) {
   const html = buildTalk(deckJson, { stylePath });
@@ -415,22 +420,49 @@ export async function buildGoogleSlides(deckJson, { stylePath, gws = gwsCli(), f
   if (wrong.length)
     throw new SlidesError(`Google Slides takes PNG, JPEG or GIF images, not ${wrong.join(', ')}. Save those as PNG, point deck.json at them and run this again.`);
 
+  // From here on, things exist on the speaker's Drive. A run that fails deletes the folder,
+  // and with it the presentation and every uploaded picture; if even that fails, the error
+  // names what is left there and how to remove it.
   const folder = gws(['drive', 'files', 'create', '--json', p({ name: `${deck.title} (Google Slides)`, mimeType: FOLDER })]).id;
-  const presentationId = gws(['drive', 'files', 'create', '--json', p({ name: deck.title, mimeType: PRESENTATION, parents: [folder] })]).id;
+  const shared = [];
+  const unrevoked = [];
+  let presentationId;
+  const out = join(dir, OUT_DIR);
+  try {
+    presentationId = gws(['drive', 'files', 'create', '--json', p({ name: deck.title, mimeType: PRESENTATION, parents: [folder] })]).id;
+    const raised = await fillPresentation({ deck, dir, style, local, gws, presentationId, folder, shared, unrevoked });
+    const exported = thumbnails ? await exportThumbnails({ deck, out, gws, fetch, presentationId }) : [];
+    const url = presentationUrl(presentationId);
+    const record = { presentationId, url, folderId: folder, slides: deck.slides.length, raised, exported: exported.map((f) => relative(dir, f)) };
+    writeFileSync(join(dir, RECORD_FILE), `${JSON.stringify(record, null, 2)}\n`);
+    return { ...record, html: html.out, throughline: html.throughline };
+  } catch (e) {
+    if (thumbnails) rmSync(out, { recursive: true, force: true });
+    throw undo(e, { gws, folder, presentationId, unrevoked });
+  }
+}
+
+const presentationUrl = (id) => `https://docs.google.com/presentation/d/${id}/edit`;
+const folderUrl = (id) => `https://drive.google.com/drive/folders/${id}`;
+const fileUrl = (id) => `https://drive.google.com/file/d/${id}/view`;
+
+// Uploads the pictures, builds every slide and the notes. Each picture is readable by link only
+// while the slides are built; a sharing that cannot be switched off again is a failure.
+async function fillPresentation({ deck, dir, style, local, gws, presentationId, folder, shared, unrevoked }) {
   const before = gws(['slides', 'presentations', 'get', '--params', p({ presentationId })]);
 
   // Google Slides fetches every image from an address, so each one goes to Drive first and is
   // readable by link only while the slides are built; the presentation keeps its own copy.
-  const shared = [];
   const temp = mkdtempSync(join(tmpdir(), 'talk-builder-slides-'));
   const upload = (path, name, mime) => {
     const id = gws(['drive', 'files', 'create', '--json', p({ name, parents: [folder] }), '--upload', path, '--upload-content-type', mime]).id;
     const permission = gws(['drive', 'permissions', 'create', '--params', p({ fileId: id }), '--json', p({ role: 'reader', type: 'anyone' })]).id;
-    shared.push({ fileId: id, permissionId: permission });
+    shared.push({ fileId: id, permissionId: permission, name });
     return `https://drive.google.com/uc?export=download&id=${id}`;
   };
 
   let raised;
+  let failed = false;
   try {
     const images = {};
     for (const f of local) images[f] = upload(join(dir, f), basename(f), IMAGE_TYPES[extname(f).toLowerCase()]);
@@ -451,39 +483,61 @@ export async function buildGoogleSlides(deckJson, { stylePath, gws = gwsCli(), f
     const after = gws(['slides', 'presentations', 'get', '--params', p({ presentationId })]);
     const notes = notesRequests(deck, after);
     if (notes.length) gws(['slides', 'presentations', 'batchUpdate', '--params', p({ presentationId }), '--json', p({ requests: notes })]);
+  } catch (e) {
+    failed = true;
+    throw e;
   } finally {
     for (const s of shared) {
       try {
-        gws(['drive', 'permissions', 'delete', '--params', p(s)]);
-      } catch {
-        // Revoking is tidying; a failure here must not hide the real error.
+        gws(['drive', 'permissions', 'delete', '--params', p({ fileId: s.fileId, permissionId: s.permissionId })]);
+      } catch (e) {
+        unrevoked.push({ ...s, why: oneLine(e) });
       }
     }
     rmSync(temp, { recursive: true, force: true });
   }
+  if (!failed && unrevoked.length)
+    throw new SlidesError(`the link sharing could not be switched off on ${unrevoked.map((s) => s.name).join(', ')} (${unrevoked[0].why})`);
+  return raised;
+}
 
+async function exportThumbnails({ deck, out, gws, fetch, presentationId }) {
   const exported = [];
-  if (thumbnails) {
-    const out = join(dir, OUT_DIR);
-    rmSync(out, { recursive: true, force: true });
-    mkdirSync(out, { recursive: true });
-    for (const [i] of deck.slides.entries()) {
-      const thumb = gws([
-        'slides', 'presentations', 'pages', 'getThumbnail',
-        '--params', p({ presentationId, pageObjectId: slideId(i), 'thumbnailProperties.thumbnailSize': 'LARGE' }),
-      ]);
-      const response = await fetch(thumb.contentUrl);
-      if (!response.ok) throw new SlidesError(`could not download the picture of slide ${i + 1} (${response.status})`);
-      const file = join(out, `slide-${String(i + 1).padStart(2, '0')}.png`);
-      writeFileSync(file, Buffer.from(await response.arrayBuffer()));
-      exported.push(file);
-    }
+  rmSync(out, { recursive: true, force: true });
+  mkdirSync(out, { recursive: true });
+  for (const [i] of deck.slides.entries()) {
+    const thumb = gws([
+      'slides', 'presentations', 'pages', 'getThumbnail',
+      '--params', p({ presentationId, pageObjectId: slideId(i), 'thumbnailProperties.thumbnailSize': 'LARGE' }),
+    ]);
+    const response = await fetch(thumb.contentUrl);
+    if (!response.ok) throw new SlidesError(`could not download the picture of slide ${i + 1} (${response.status})`);
+    const file = join(out, `slide-${String(i + 1).padStart(2, '0')}.png`);
+    writeFileSync(file, Buffer.from(await response.arrayBuffer()));
+    exported.push(file);
   }
+  return exported;
+}
 
-  const url = `https://docs.google.com/presentation/d/${presentationId}/edit`;
-  const record = { presentationId, url, folderId: folder, slides: deck.slides.length, raised, exported: exported.map((f) => relative(dir, f)) };
-  writeFileSync(join(dir, RECORD_FILE), `${JSON.stringify(record, null, 2)}\n`);
-  return { ...record, html: html.out, throughline: html.throughline };
+// A failed run deletes its Drive folder: deleting a folder deletes the presentation and the
+// pictures in it, so nothing stays shared either. The error says that it did, or, when the
+// delete fails too, names everything left on Drive and how to remove it.
+export function undo(error, { gws, folder, presentationId, unrevoked = [] }) {
+  const lines = [error.message];
+  if (unrevoked.length)
+    lines.push(`The link sharing could not be switched off on: ${unrevoked.map((s) => `${s.name} (${fileUrl(s.fileId)})`).join(', ')}.`);
+  try {
+    gws(['drive', 'files', 'delete', '--params', p({ fileId: folder })]);
+    lines.push(`Nothing is left on your Google Drive: the folder this run created was deleted, with ${presentationId ? 'the presentation and ' : ''}every picture in it.`);
+  } catch (e) {
+    lines.push(`The folder this run created could not be deleted (${oneLine(e)}). Left on your Google Drive:`);
+    lines.push(`- the folder: ${folderUrl(folder)}`);
+    if (presentationId) lines.push(`- the presentation, in that folder: ${presentationUrl(presentationId)}`);
+    lines.push('- the pictures uploaded into that folder');
+    for (const s of unrevoked) lines.push(`- still readable by anyone with its link: ${s.name}, ${fileUrl(s.fileId)}`);
+    lines.push('To remove them: open the folder link, go up one level, right-click the folder and choose "Move to bin". That removes everything in it, including the shared pictures.');
+  }
+  return new SlidesError(lines.join('\n'));
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
