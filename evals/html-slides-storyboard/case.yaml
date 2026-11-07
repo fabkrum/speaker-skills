@@ -1,0 +1,78 @@
+schema_version: "1.0"
+name: html-slides-storyboard
+description: >
+  A speaker hands over a short storyboard without images. The deck must be built as an
+  offline HTML folder and pass the html-slides deck check (contrast, AI label, alt text,
+  390 px, offline, QR) in a real browser.
+tags: [html-slides]
+execution:
+  max_turns: 40
+  timeout_seconds: 900
+  allowed_tools: [Read, Write, Edit, Bash, Glob, Grep, Skill]
+  prompt: |
+    Here is the storyboard for my five-minute lightning talk "Rehearse with your phone".
+    Build the slide deck in a folder called `deck/` in the current directory, so I can open it
+    on the venue laptop without internet. I don't have the images yet.
+
+    1. Image: a phone on a small tripod, pointing at an empty stage.
+       Sentence: "Your phone is the only rehearsal coach you need."
+    2. Image: a photorealistic AI-generated photo of a speaker wincing while watching herself
+       on a laptop. Sentence: "Watching yourself hurts once, then it helps."
+    3. The number 3. Sentence: "Three recorded run-throughs are enough to hear the difference."
+    4. The command `ffmpeg -i rehearsal.mp4 -vn rehearsal.wav`.
+       Sentence: "One command pulls the sound out of the video."
+    5. A black slide: I ask the room which habit they would fix first, and wait.
+    6. The companion guide at https://example.com/rehearse-with-your-phone with a QR code.
+       Sentence: "Your next step is in the guide."
+runs: 1
+graders:
+  - name: deck-built
+    type: file_exists
+    path: deck/index.html
+  - name: deck-check-passed
+    type: regex
+    target:
+      source: file
+      path: deck/deck-check.json
+    pattern: '"passed":\s*true'
+  - name: deck-check-ran
+    type: tool_used
+    tool: Bash
+    input_match: check-deck
+  - name: six-slides
+    type: regex
+    target:
+      source: file
+      path: deck/index.html
+    pattern: '<section class="slide'
+    match: count:6
+  - name: ai-label-on-slide
+    type: regex
+    target:
+      source: file
+      path: deck/index.html
+    pattern: 'AI-generated'
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: html-slides
+    arm: with-only
+  - name: deck-follows-storyboard
+    type: llm
+    focus:
+      source: file
+      path: deck/index.html
+    criteria: |
+      The file is a slide deck built from the storyboard in the prompt. Pass only if all hold:
+      - There are six slides in storyboard order.
+      - Slides 1 and 2 are image slides, each showing exactly its storyboard sentence and an
+        image with meaningful alt text (not empty, not "image of", not the sentence repeated).
+      - Slide 2's image is marked as a photorealistic AI image and the slide shows an
+        "AI-generated" label; slide 1 shows no such label.
+      - Slide 3 shows the number 3 large with its sentence and no photo; slide 4 shows the
+        ffmpeg command as code with its sentence and no photo.
+      - Slide 5 is a black slide with no visible text.
+      - Slide 6 shows the sentence, the address example.com/rehearse-with-your-phone, and a
+        QR code for https://example.com/rehearse-with-your-phone.
+      - The deck loads nothing from the internet (no http or https stylesheets, scripts,
+        fonts or images).

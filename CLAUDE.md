@@ -1,5 +1,9 @@
 # speaker-skills
 
+Writing or changing an eval case: `evals/README.md`, section "Writing a case".
+
+Writing or changing a script under `skills/*/scripts/`: `CODING_STANDARDS.md`.
+
 ## Agent skills
 
 ### Issue tracker

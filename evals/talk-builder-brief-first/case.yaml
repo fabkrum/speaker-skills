@@ -1,0 +1,59 @@
+schema_version: "1.0"
+name: talk-builder-brief-first
+description: >
+  A speaker hands over a storyboard and asks for slides straight away, with no goal, no
+  audience and no throughline. The talk brief interview must come first: questions about the
+  goal, the one outcome, the throughline and the audience, and no deck and no storyboard
+  critique until they are answered.
+tags: [talk-builder]
+execution:
+  max_turns: 20
+  timeout_seconds: 600
+  allowed_tools: [Read, Write, Edit, Bash, Glob, Grep, Skill]
+  prompt: |
+    I'm giving a talk at a DevFest next month about making web pages respond faster. Here is my
+    storyboard, can you build the slides for it? Put everything in `talk/`.
+
+    1. Agenda
+    2. What is INP
+    3. Long tasks
+    4. scheduler.yield()
+    5. Our results
+    6. Questions?
+runs: 1
+graders:
+  - name: no-deck-yet
+    type: tool_used
+    tool: Write
+    input_match: '\.html'
+    min: 0
+    max: 0
+  - name: no-critique-yet
+    type: file_exists
+    path: talk/storyboard-critique.md
+    exists: false
+  - name: asks-for-throughline
+    type: regex
+    target: last_message
+    pattern: 'throughline|core message|one sentence'
+    flags: i
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: talk-builder
+    arm: with-only
+  - name: brief-interview-first
+    type: llm
+    focus: last_message
+    criteria: |
+      The reply is a talk coach's first answer to a speaker who asked for slides. Pass only if
+      all hold:
+      - It does not present finished slides, and it does not critique the storyboard slide by
+        slide yet.
+      - It asks the speaker for the talk brief: at least the talk's goal or the one thing the
+        audience should do, think or feel afterwards, and who the audience is (for example
+        their background or what they already know).
+      - It asks for a throughline or core message in one short sentence, or says it will
+        draft one from the answers for the speaker to confirm before going on.
+      - It asks whether this is a talk or a workshop, or how long the slot is.
+      - It does not invent the answers (a made-up throughline or audience) and carry on.

@@ -1,0 +1,72 @@
+schema_version: "1.0"
+name: rehearsal-coach-sample
+description: >
+  A speaker hands over the first recorded rehearsal of a new talk. The coach measures it (word-level
+  transcript, words per minute, fillers, pauses, frames), judges it from the audience's seat, and
+  writes a report that opens with the goal the speaker's last talk set, then a red/yellow/green
+  scorecard with timestamped receipts, the top three fixes and one measurable goal, appended to the
+  talk's take log. The numbers must match the hand count of the sample recording.
+tags: [rehearsal-coach]
+context:
+  scaffold_script: setup.sh
+execution:
+  max_turns: 60
+  timeout_seconds: 1500
+  allowed_tools: [Read, Write, Edit, Bash, Glob, Grep, Skill]
+  prompt: |
+    I just recorded my first rehearsal of the opener for my lightning talk:
+    `talks/rehearse-with-your-phone/rehearsal-1.mp4`. The brief is in the same folder, and
+    `talks/` is where I keep all my talks. Coach me: be honest, I want numbers, not compliments.
+    I'm not around to answer questions, so go ahead without me.
+runs: 1
+graders:
+  - name: report-written
+    type: file_exists
+    path: talks/rehearse-with-your-phone/rehearsals/take-01/report.md
+  - name: report-opens-with-last-talks-goal
+    type: regex
+    target:
+      source: file
+      path: talks/rehearse-with-your-phone/rehearsals/take-01/report.md
+    pattern: '^# [^\n]*\n\n## Goal from your last talk \("web-pages-that-respond"'
+  - name: take-logged
+    type: regex
+    target:
+      source: file
+      path: talks/rehearse-with-your-phone/rehearsals/takes.json
+    pattern: '"take":\s*1,'
+  - name: wpm-within-5-percent-of-hand-count
+    type: regex
+    target:
+      source: file
+      path: talks/rehearse-with-your-phone/rehearsals/take-01/measurements.json
+    pattern: '"wpm":\s*1(?:4[0-9]|5[0-4]),'
+  - name: fillers-within-1-of-hand-count
+    type: regex
+    target:
+      source: file
+      path: talks/rehearse-with-your-phone/rehearsals/take-01/measurements.json
+    pattern: '"total":\s*(?:9|10|11),'
+  - name: skill-fired
+    type: tool_used
+    tool: Skill
+    input_match: rehearsal-coach
+    arm: with-only
+  - name: report-is-a-coachs-report
+    type: llm
+    focus:
+      source: file
+      path: talks/rehearse-with-your-phone/rehearsals/take-01/report.md
+    criteria: |
+      The file is a rehearsal report for a one-minute talk opener. Pass only if all hold:
+      - It opens by checking a goal carried over from the speaker's previous talk (pausing after
+        key lines) and says whether this take met it.
+      - It judges from the audience's seat: whether the talk lands (yes, partly or no) and how
+        likely the audience is to take the next step on a 0 to 10 scale.
+      - It scores nine dimensions of delivery red, yellow or green, each with a reason.
+      - It lists receipts: specific moments with mm:ss timestamps.
+      - It reports words per minute and the filler count or rate, and names fillers such as
+        "um", "uh" or "basically".
+      - It gives exactly three top fixes and ends with one goal for the next rehearsal that has a
+        measurable target (a number).
+      - It does not flatter: the high filler rate (about ten a minute) is named as a problem.

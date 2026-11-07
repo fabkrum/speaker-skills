@@ -1,0 +1,30 @@
+{
+  "title": "Rehearse with your phone",
+  "lang": "en",
+  "slides": [
+    { "type": "image", "placeholder": "a small paper boat on a desk next to a phone showing a paused video of a speaker",
+      "alt": "A paused video of a speaker on a phone, a paper boat beside it",
+      "sentence": "Watching yourself speak is the fastest way to get better.",
+      "panel": "bottom-left",
+      "notes": "Open: hands up, who has watched a video of themselves speak? Wait. Promise the guide: no notes needed." },
+    { "type": "image", "placeholder": "a speaker wincing at their own recording on a laptop, early-morning light, paper boat on the shelf",
+      "alt": "A speaker winces at their own recording on a laptop",
+      "sentence": "It hurts once, then it helps.",
+      "ai": "photo", "panel": "bottom-right",
+      "notes": "Story: my first recording, 23 'so's in five minutes. The second time: half." },
+    { "type": "image", "placeholder": "a phone propped on a stack of books at eye height, an empty meeting room behind it",
+      "alt": "A phone propped on books at eye height, facing an empty room",
+      "sentence": "A phone at eye height is all the kit you need.",
+      "notes": "Books, not a tripod. Quiet room. Landscape. Nothing else." },
+    { "type": "text", "sentence": "Count three things, not thirty.",
+      "compare": ["Filler words per minute", "A pause after each key line", "Time against the slot"],
+      "notes": "One example each. Do not explain tools; the guide has them." },
+    { "type": "text", "sentence": "Three recorded run-throughs are enough to hear the difference.", "figure": "3",
+      "notes": "Comfort, refine, polish. One purpose each." },
+    { "type": "black", "title": "Which habit would you fix first?",
+      "notes": "Ask: which habit would you fix first? Wait for two answers." },
+    { "type": "qr", "sentence": "Your next step: record one run-through this week.",
+      "url": "https://example.com/rehearse-with-your-phone",
+      "notes": "Last line, scripted: record one this week, watch it once. The guide shows how." }
+  ]
+}

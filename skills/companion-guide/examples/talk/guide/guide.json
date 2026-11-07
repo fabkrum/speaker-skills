@@ -1,0 +1,69 @@
+{
+  "title": "Record, watch, fix one thing",
+  "lang": "en",
+  "speaker": "Sam Example",
+  "event": "Example Meetup, 12 November 2026",
+  "url": "https://example.com/better-with-every-talk",
+  "deck": "../slides/deck.json",
+  "aiTool": "an image model, from a written prompt",
+  "intro": "Everything from the talk, one section per slide, so you can listen instead of taking notes. The one thing to do this week is at the end.",
+  "sections": [
+    {
+      "concept": "The phone as rehearsal coach",
+      "body": [
+        "You cannot hear yourself while you speak: your attention is on the next sentence. A recording hears everything, and you already carry the camera that makes one.",
+        "Put the phone where the back row would sit, at eye height, and press record. That is the whole kit."
+      ]
+    },
+    {
+      "concept": "One goal per talk",
+      "body": [
+        "A recording shows you twenty things at once. Pick one, the one that costs the room most, and fix only that before the next talk.",
+        "Write it down as something you can count: \"fewer than two fillers a minute\", not \"sound more confident\". The next recording tells you whether you made it."
+      ]
+    },
+    {
+      "concept": "Three run-throughs, one purpose each",
+      "body": [
+        "The first run is for comfort: get through it end to end and note where you stall. The second is for the weak spots the first one showed. The third is polish: lock the first minute and the last lines.",
+        "Record and watch each one. Three is enough to hear the difference between the first and the last."
+      ]
+    },
+    {
+      "concept": "Turning the video into numbers",
+      "body": [
+        "You do not need tools to rehearse, but they turn impressions into numbers. This command keeps only the sound of a recording, ready for a speech-to-text tool such as Whisper, which gives you every word with its timestamp.",
+        "From that transcript, count your words per minute and your filler words. Conversational pace is about 130 to 160 words a minute."
+      ]
+    },
+    {
+      "concept": "The question that makes it yours",
+      "body": [
+        "Here the screen went black and you were asked which habit you would fix first. The answer is your goal from slide 2.",
+        "Most people name a filler word or speed. Both are easy to count in a recording, which is why they make good first goals."
+      ]
+    },
+    {
+      "concept": "This guide",
+      "body": [
+        "The last slide pointed here, so nobody had to take notes. Your one next step is just below."
+      ]
+    }
+  ],
+  "nextStep": {
+    "action": "Record one run-through of your next talk this week and watch it back once.",
+    "why": "One recording shows you more than ten silent read-throughs of your notes.",
+    "how": [
+      "Prop your phone at eye height, in landscape, about where the back row would sit.",
+      "Give the whole talk once without stopping, as if the room were full.",
+      "Watch it back the same day at normal speed, with a pen.",
+      "Write down the one habit you would fix first, as something you can count.",
+      "Record again before the talk and count only that."
+    ]
+  },
+  "furtherReading": [
+    { "title": "The rehearsal rubric", "url": "https://github.com/fabkrum/speaker-skills/blob/main/references/rehearsal-rubric.md", "note": "what to measure in a recording and what good looks like" },
+    { "title": "Whisper", "url": "https://github.com/openai/whisper", "note": "free speech-to-text that runs on your own laptop" },
+    { "title": "FFmpeg", "url": "https://ffmpeg.org/", "note": "the tool behind the command on slide 4" }
+  ]
+}

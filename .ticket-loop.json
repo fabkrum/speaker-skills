@@ -1,10 +1,12 @@
 {
   "test": "npm test --silent",
+  "final_test": "npm test --silent",
+  "burn_in": "node --test --test-timeout=60000 {file}",
   "link": ["node_modules"],
   "risk": [
     {"paths": ["**/references/**", "**/reference/**"], "why": "the method's reference texts: what speakers read and the skills apply"},
     {"paths": ["LICENSE", "LICENSE-CONTENT"], "why": "the licences"},
     {"paths": ["scripts/**", ".github/**", "**/*.test.*", "test/**", "tests/**"], "why": "a gate or its tests"},
-    {"paths": ["**/SKILL.md"], "why": "a skill's instructions"}
+    {"paths": ["**/SKILL.md"], "why": "a skill's instructions", "new_files": false}
   ]
 }

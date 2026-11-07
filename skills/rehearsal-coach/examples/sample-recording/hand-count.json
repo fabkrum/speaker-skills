@@ -1,0 +1,17 @@
+{
+  "recording": "../talks/rehearse-with-your-phone/rehearsal-1.mp4",
+  "counted": "by hand, from the script in README.md that the recording speaks word for word",
+  "words": 145,
+  "speechSeconds": 59.3,
+  "wpm": 147,
+  "fillers": {
+    "total": 10,
+    "counts": { "um": 3, "uh": 3, "like": 1, "you know": 1, "i think": 1, "basically": 1 }
+  },
+  "pauses": 6,
+  "tolerance": {
+    "wpmPercent": 5,
+    "fillers": 1,
+    "pauses": 1
+  }
+}

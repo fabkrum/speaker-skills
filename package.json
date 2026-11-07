@@ -3,6 +3,7 @@
   "private": true,
   "license": "MIT-0",
   "scripts": {
-    "test": "node --test"
+    "check": "node scripts/check-repo.mjs",
+    "test": "node --test --test-timeout=60000"
   }
 }

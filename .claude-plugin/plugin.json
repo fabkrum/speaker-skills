@@ -1,0 +1,11 @@
+{
+  "name": "speaker-skills",
+  "description": "Agent skills for speakers who want to get better with every talk.",
+  "version": "0.1.0",
+  "license": "MIT-0",
+  "repository": "https://github.com/fabkrum/speaker-skills",
+  "author": {
+    "name": "fabkrum",
+    "url": "https://github.com/fabkrum"
+  }
+}

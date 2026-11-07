@@ -1,0 +1,944 @@
+{
+ "text": " Who here has watched a video of themselves speak? Um, most of us never have, and, uh, I get it, it hurts the first time, but it only hurts once. So, um, here is the thing, your phone is, like, the rehearsal coach you already own. You put it at eye height, you press record, and you, uh, give the whole talk to it, then you watch it back, once, at normal speed. And you count three things, um, the filler words per minute, the pauses after each key line, and, you know, your time against the slot. I think three run-throughs are, uh, basically enough. The first one is for comfort, the second one fixes what the first one showed, the third one is Polish. So here is your next step, record one run-through this week, and watch it once, that's it, thank you.",
+ "language": "en",
+ "segments": [
+  {
+   "id": 0,
+   "start": 0,
+   "end": 2.42,
+   "text": " Who here has watched a video of themselves speak?",
+   "words": [
+    {
+     "word": " Who",
+     "start": 0,
+     "end": 0.14,
+     "probability": 0.54
+    },
+    {
+     "word": " here",
+     "start": 0.14,
+     "end": 0.36,
+     "probability": 0.99
+    },
+    {
+     "word": " has",
+     "start": 0.36,
+     "end": 0.56,
+     "probability": 0.99
+    },
+    {
+     "word": " watched",
+     "start": 0.56,
+     "end": 0.86,
+     "probability": 0.99
+    },
+    {
+     "word": " a",
+     "start": 0.86,
+     "end": 1.02,
+     "probability": 0.97
+    },
+    {
+     "word": " video",
+     "start": 1.02,
+     "end": 1.22,
+     "probability": 1
+    },
+    {
+     "word": " of",
+     "start": 1.22,
+     "end": 1.48,
+     "probability": 1
+    },
+    {
+     "word": " themselves",
+     "start": 1.48,
+     "end": 1.76,
+     "probability": 0.95
+    },
+    {
+     "word": " speak?",
+     "start": 1.76,
+     "end": 2.42,
+     "probability": 0.99
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "start": 4.74,
+   "end": 11.34,
+   "text": " Um, most of us never have, and, uh, I get it, it hurts the first time, but it only hurts once.",
+   "words": [
+    {
+     "word": " Um,",
+     "start": 4.74,
+     "end": 4.9,
+     "probability": 0.54
+    },
+    {
+     "word": " most",
+     "start": 5.18,
+     "end": 5.38,
+     "probability": 0.92
+    },
+    {
+     "word": " of",
+     "start": 5.38,
+     "end": 5.6,
+     "probability": 1
+    },
+    {
+     "word": " us",
+     "start": 5.6,
+     "end": 5.76,
+     "probability": 1
+    },
+    {
+     "word": " never",
+     "start": 5.76,
+     "end": 6,
+     "probability": 0.99
+    },
+    {
+     "word": " have,",
+     "start": 6,
+     "end": 6.42,
+     "probability": 1
+    },
+    {
+     "word": " and,",
+     "start": 6.68,
+     "end": 6.96,
+     "probability": 0.92
+    },
+    {
+     "word": " uh,",
+     "start": 7.48,
+     "end": 7.48,
+     "probability": 0.38
+    },
+    {
+     "word": " I",
+     "start": 7.7,
+     "end": 7.9,
+     "probability": 0.98
+    },
+    {
+     "word": " get",
+     "start": 7.9,
+     "end": 8.08,
+     "probability": 1
+    },
+    {
+     "word": " it,",
+     "start": 8.08,
+     "end": 8.32,
+     "probability": 1
+    },
+    {
+     "word": " it",
+     "start": 8.48,
+     "end": 8.64,
+     "probability": 0.94
+    },
+    {
+     "word": " hurts",
+     "start": 8.64,
+     "end": 8.84,
+     "probability": 1
+    },
+    {
+     "word": " the",
+     "start": 8.84,
+     "end": 9.08,
+     "probability": 1
+    },
+    {
+     "word": " first",
+     "start": 9.08,
+     "end": 9.3,
+     "probability": 1
+    },
+    {
+     "word": " time,",
+     "start": 9.3,
+     "end": 9.76,
+     "probability": 1
+    },
+    {
+     "word": " but",
+     "start": 10.02,
+     "end": 10.18,
+     "probability": 0.99
+    },
+    {
+     "word": " it",
+     "start": 10.18,
+     "end": 10.3,
+     "probability": 1
+    },
+    {
+     "word": " only",
+     "start": 10.3,
+     "end": 10.52,
+     "probability": 1
+    },
+    {
+     "word": " hurts",
+     "start": 10.52,
+     "end": 10.9,
+     "probability": 1
+    },
+    {
+     "word": " once.",
+     "start": 10.9,
+     "end": 11.34,
+     "probability": 1
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "start": 13.32,
+   "end": 19.08,
+   "text": " So, um, here is the thing, your phone is, like, the rehearsal coach you already own.",
+   "words": [
+    {
+     "word": " So,",
+     "start": 13.32,
+     "end": 13.8,
+     "probability": 0.99
+    },
+    {
+     "word": " um,",
+     "start": 14.22,
+     "end": 14.3,
+     "probability": 0.97
+    },
+    {
+     "word": " here",
+     "start": 14.54,
+     "end": 14.78,
+     "probability": 0.99
+    },
+    {
+     "word": " is",
+     "start": 14.78,
+     "end": 14.92,
+     "probability": 0.92
+    },
+    {
+     "word": " the",
+     "start": 14.92,
+     "end": 15.08,
+     "probability": 1
+    },
+    {
+     "word": " thing,",
+     "start": 15.08,
+     "end": 15.36,
+     "probability": 1
+    },
+    {
+     "word": " your",
+     "start": 15.66,
+     "end": 15.8,
+     "probability": 0.98
+    },
+    {
+     "word": " phone",
+     "start": 15.8,
+     "end": 16.04,
+     "probability": 1
+    },
+    {
+     "word": " is,",
+     "start": 16.04,
+     "end": 16.36,
+     "probability": 1
+    },
+    {
+     "word": " like,",
+     "start": 16.62,
+     "end": 16.9,
+     "probability": 1
+    },
+    {
+     "word": " the",
+     "start": 17.2,
+     "end": 17.32,
+     "probability": 1
+    },
+    {
+     "word": " rehearsal",
+     "start": 17.32,
+     "end": 17.66,
+     "probability": 0.99
+    },
+    {
+     "word": " coach",
+     "start": 17.66,
+     "end": 18.08,
+     "probability": 0.98
+    },
+    {
+     "word": " you",
+     "start": 18.08,
+     "end": 18.3,
+     "probability": 1
+    },
+    {
+     "word": " already",
+     "start": 18.3,
+     "end": 18.62,
+     "probability": 1
+    },
+    {
+     "word": " own.",
+     "start": 18.62,
+     "end": 19.08,
+     "probability": 1
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "start": 20.98,
+   "end": 29.34,
+   "text": " You put it at eye height, you press record, and you, uh, give the whole talk to it, then you watch it back, once, at normal speed.",
+   "words": [
+    {
+     "word": " You",
+     "start": 20.98,
+     "end": 21.46,
+     "probability": 0.99
+    },
+    {
+     "word": " put",
+     "start": 21.46,
+     "end": 21.66,
+     "probability": 1
+    },
+    {
+     "word": " it",
+     "start": 21.66,
+     "end": 21.78,
+     "probability": 1
+    },
+    {
+     "word": " at",
+     "start": 21.78,
+     "end": 21.9,
+     "probability": 1
+    },
+    {
+     "word": " eye",
+     "start": 21.9,
+     "end": 22.02,
+     "probability": 0.93
+    },
+    {
+     "word": " height,",
+     "start": 22.02,
+     "end": 22.34,
+     "probability": 0.9
+    },
+    {
+     "word": " you",
+     "start": 22.52,
+     "end": 22.72,
+     "probability": 0.99
+    },
+    {
+     "word": " press",
+     "start": 22.72,
+     "end": 22.98,
+     "probability": 1
+    },
+    {
+     "word": " record,",
+     "start": 22.98,
+     "end": 23.4,
+     "probability": 0.93
+    },
+    {
+     "word": " and",
+     "start": 23.76,
+     "end": 23.92,
+     "probability": 1
+    },
+    {
+     "word": " you,",
+     "start": 23.92,
+     "end": 24.2,
+     "probability": 0.99
+    },
+    {
+     "word": " uh,",
+     "start": 24.46,
+     "end": 24.72,
+     "probability": 0.95
+    },
+    {
+     "word": " give",
+     "start": 24.94,
+     "end": 25.12,
+     "probability": 1
+    },
+    {
+     "word": " the",
+     "start": 25.12,
+     "end": 25.28,
+     "probability": 1
+    },
+    {
+     "word": " whole",
+     "start": 25.28,
+     "end": 25.52,
+     "probability": 1
+    },
+    {
+     "word": " talk",
+     "start": 25.52,
+     "end": 25.76,
+     "probability": 1
+    },
+    {
+     "word": " to",
+     "start": 25.76,
+     "end": 25.96,
+     "probability": 1
+    },
+    {
+     "word": " it,",
+     "start": 25.96,
+     "end": 26.14,
+     "probability": 1
+    },
+    {
+     "word": " then",
+     "start": 26.38,
+     "end": 26.56,
+     "probability": 0.99
+    },
+    {
+     "word": " you",
+     "start": 26.56,
+     "end": 26.74,
+     "probability": 1
+    },
+    {
+     "word": " watch",
+     "start": 26.74,
+     "end": 26.96,
+     "probability": 1
+    },
+    {
+     "word": " it",
+     "start": 26.96,
+     "end": 27.16,
+     "probability": 1
+    },
+    {
+     "word": " back,",
+     "start": 27.16,
+     "end": 27.46,
+     "probability": 1
+    },
+    {
+     "word": " once,",
+     "start": 27.76,
+     "end": 28.08,
+     "probability": 1
+    },
+    {
+     "word": " at",
+     "start": 28.42,
+     "end": 28.6,
+     "probability": 1
+    },
+    {
+     "word": " normal",
+     "start": 28.6,
+     "end": 28.86,
+     "probability": 1
+    },
+    {
+     "word": " speed.",
+     "start": 28.86,
+     "end": 29.34,
+     "probability": 1
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "start": 30.84,
+   "end": 39.36,
+   "text": " And you count three things, um, the filler words per minute, the pauses after each key line, and, you know, your time against the slot.",
+   "words": [
+    {
+     "word": " And",
+     "start": 30.84,
+     "end": 31.36,
+     "probability": 0.59
+    },
+    {
+     "word": " you",
+     "start": 31.36,
+     "end": 31.5,
+     "probability": 0.98
+    },
+    {
+     "word": " count",
+     "start": 31.5,
+     "end": 31.76,
+     "probability": 1
+    },
+    {
+     "word": " three",
+     "start": 31.76,
+     "end": 32,
+     "probability": 0.69
+    },
+    {
+     "word": " things,",
+     "start": 32,
+     "end": 32.44,
+     "probability": 0.99
+    },
+    {
+     "word": " um,",
+     "start": 32.9,
+     "end": 32.96,
+     "probability": 0.69
+    },
+    {
+     "word": " the",
+     "start": 33.3,
+     "end": 33.38,
+     "probability": 0.98
+    },
+    {
+     "word": " filler",
+     "start": 33.38,
+     "end": 33.62,
+     "probability": 0.95
+    },
+    {
+     "word": " words",
+     "start": 33.62,
+     "end": 33.94,
+     "probability": 0.99
+    },
+    {
+     "word": " per",
+     "start": 33.94,
+     "end": 34.18,
+     "probability": 0.97
+    },
+    {
+     "word": " minute,",
+     "start": 34.18,
+     "end": 34.44,
+     "probability": 0.99
+    },
+    {
+     "word": " the",
+     "start": 34.74,
+     "end": 34.86,
+     "probability": 0.98
+    },
+    {
+     "word": " pauses",
+     "start": 34.86,
+     "end": 35.14,
+     "probability": 0.97
+    },
+    {
+     "word": " after",
+     "start": 35.14,
+     "end": 35.6,
+     "probability": 1
+    },
+    {
+     "word": " each",
+     "start": 35.6,
+     "end": 35.86,
+     "probability": 1
+    },
+    {
+     "word": " key",
+     "start": 35.86,
+     "end": 36.1,
+     "probability": 1
+    },
+    {
+     "word": " line,",
+     "start": 36.1,
+     "end": 36.44,
+     "probability": 0.76
+    },
+    {
+     "word": " and,",
+     "start": 36.82,
+     "end": 37.06,
+     "probability": 0.97
+    },
+    {
+     "word": " you",
+     "start": 37.26,
+     "end": 37.48,
+     "probability": 0.98
+    },
+    {
+     "word": " know,",
+     "start": 37.48,
+     "end": 37.76,
+     "probability": 1
+    },
+    {
+     "word": " your",
+     "start": 38.04,
+     "end": 38.22,
+     "probability": 0.99
+    },
+    {
+     "word": " time",
+     "start": 38.22,
+     "end": 38.46,
+     "probability": 1
+    },
+    {
+     "word": " against",
+     "start": 38.46,
+     "end": 38.78,
+     "probability": 1
+    },
+    {
+     "word": " the",
+     "start": 38.78,
+     "end": 39.04,
+     "probability": 0.99
+    },
+    {
+     "word": " slot.",
+     "start": 39.04,
+     "end": 39.36,
+     "probability": 1
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "start": 41.44,
+   "end": 50.48,
+   "text": " I think three run-throughs are, uh, basically enough. The first one is for comfort, the second one fixes what the first one showed, the third one is Polish.",
+   "words": [
+    {
+     "word": " I",
+     "start": 41.44,
+     "end": 41.58,
+     "probability": 0.99
+    },
+    {
+     "word": " think",
+     "start": 41.58,
+     "end": 41.78,
+     "probability": 1
+    },
+    {
+     "word": " three",
+     "start": 41.78,
+     "end": 42.06,
+     "probability": 0.96
+    },
+    {
+     "word": " run",
+     "start": 42.06,
+     "end": 42.3,
+     "probability": 0.99
+    },
+    {
+     "word": "-throughs",
+     "start": 42.3,
+     "end": 42.64,
+     "probability": 0.86
+    },
+    {
+     "word": " are,",
+     "start": 42.64,
+     "end": 42.9,
+     "probability": 1
+    },
+    {
+     "word": " uh,",
+     "start": 43.44,
+     "end": 43.44,
+     "probability": 0.42
+    },
+    {
+     "word": " basically",
+     "start": 43.7,
+     "end": 44.02,
+     "probability": 0.99
+    },
+    {
+     "word": " enough.",
+     "start": 44.02,
+     "end": 44.52,
+     "probability": 0.99
+    },
+    {
+     "word": " The",
+     "start": 44.88,
+     "end": 45.04,
+     "probability": 0.99
+    },
+    {
+     "word": " first",
+     "start": 45.04,
+     "end": 45.3,
+     "probability": 1
+    },
+    {
+     "word": " one",
+     "start": 45.3,
+     "end": 45.54,
+     "probability": 1
+    },
+    {
+     "word": " is",
+     "start": 45.54,
+     "end": 45.7,
+     "probability": 1
+    },
+    {
+     "word": " for",
+     "start": 45.7,
+     "end": 45.88,
+     "probability": 1
+    },
+    {
+     "word": " comfort,",
+     "start": 45.88,
+     "end": 46.3,
+     "probability": 0.98
+    },
+    {
+     "word": " the",
+     "start": 46.62,
+     "end": 46.8,
+     "probability": 0.99
+    },
+    {
+     "word": " second",
+     "start": 46.8,
+     "end": 47.12,
+     "probability": 1
+    },
+    {
+     "word": " one",
+     "start": 47.12,
+     "end": 47.44,
+     "probability": 1
+    },
+    {
+     "word": " fixes",
+     "start": 47.44,
+     "end": 47.76,
+     "probability": 0.99
+    },
+    {
+     "word": " what",
+     "start": 47.76,
+     "end": 48.06,
+     "probability": 0.99
+    },
+    {
+     "word": " the",
+     "start": 48.06,
+     "end": 48.2,
+     "probability": 1
+    },
+    {
+     "word": " first",
+     "start": 48.2,
+     "end": 48.5,
+     "probability": 1
+    },
+    {
+     "word": " one",
+     "start": 48.5,
+     "end": 48.74,
+     "probability": 1
+    },
+    {
+     "word": " showed,",
+     "start": 48.74,
+     "end": 49.06,
+     "probability": 1
+    },
+    {
+     "word": " the",
+     "start": 49.36,
+     "end": 49.54,
+     "probability": 0.99
+    },
+    {
+     "word": " third",
+     "start": 49.54,
+     "end": 49.74,
+     "probability": 1
+    },
+    {
+     "word": " one",
+     "start": 49.74,
+     "end": 49.98,
+     "probability": 1
+    },
+    {
+     "word": " is",
+     "start": 49.98,
+     "end": 50.16,
+     "probability": 1
+    },
+    {
+     "word": " Polish.",
+     "start": 50.16,
+     "end": 50.48,
+     "probability": 0.78
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "start": 52.68,
+   "end": 59.04,
+   "text": " So here is your next step, record one run-through this week, and watch it once, that's it, thank you.",
+   "words": [
+    {
+     "word": " So",
+     "start": 52.68,
+     "end": 53.1,
+     "probability": 0.99
+    },
+    {
+     "word": " here",
+     "start": 53.1,
+     "end": 53.3,
+     "probability": 0.94
+    },
+    {
+     "word": " is",
+     "start": 53.3,
+     "end": 53.44,
+     "probability": 0.97
+    },
+    {
+     "word": " your",
+     "start": 53.44,
+     "end": 53.58,
+     "probability": 1
+    },
+    {
+     "word": " next",
+     "start": 53.58,
+     "end": 53.88,
+     "probability": 1
+    },
+    {
+     "word": " step,",
+     "start": 53.88,
+     "end": 54.3,
+     "probability": 1
+    },
+    {
+     "word": " record",
+     "start": 54.6,
+     "end": 54.9,
+     "probability": 0.99
+    },
+    {
+     "word": " one",
+     "start": 54.9,
+     "end": 55.24,
+     "probability": 0.99
+    },
+    {
+     "word": " run",
+     "start": 55.24,
+     "end": 55.42,
+     "probability": 1
+    },
+    {
+     "word": "-through",
+     "start": 55.42,
+     "end": 55.62,
+     "probability": 0.94
+    },
+    {
+     "word": " this",
+     "start": 55.62,
+     "end": 55.86,
+     "probability": 1
+    },
+    {
+     "word": " week,",
+     "start": 55.86,
+     "end": 56.26,
+     "probability": 1
+    },
+    {
+     "word": " and",
+     "start": 56.5,
+     "end": 56.68,
+     "probability": 1
+    },
+    {
+     "word": " watch",
+     "start": 56.68,
+     "end": 56.88,
+     "probability": 1
+    },
+    {
+     "word": " it",
+     "start": 56.88,
+     "end": 57.08,
+     "probability": 1
+    },
+    {
+     "word": " once,",
+     "start": 57.08,
+     "end": 57.42,
+     "probability": 1
+    },
+    {
+     "word": " that's",
+     "start": 57.84,
+     "end": 58.06,
+     "probability": 0.99
+    },
+    {
+     "word": " it,",
+     "start": 58.06,
+     "end": 58.22,
+     "probability": 1
+    },
+    {
+     "word": " thank",
+     "start": 58.58,
+     "end": 58.74,
+     "probability": 0.98
+    },
+    {
+     "word": " you.",
+     "start": 58.74,
+     "end": 59.04,
+     "probability": 0.99
+    }
+   ]
+  }
+ ]
+}

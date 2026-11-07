@@ -1,0 +1,14 @@
+{
+  "name": "speaker-skills",
+  "description": "Agent skills for speakers who want to get better with every talk.",
+  "owner": {
+    "name": "fabkrum"
+  },
+  "plugins": [
+    {
+      "name": "speaker-skills",
+      "source": "./",
+      "description": "Agent skills for speakers who want to get better with every talk."
+    }
+  ]
+}
